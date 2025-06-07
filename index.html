@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DINO Дурак</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -71,22 +71,24 @@
         }
 
         .card {
-            width: 60px;
-            height: 90px;
+            width: 50px;
+            height: 75px;
             background: white;
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 10px;
-            margin: 5px;
+            padding: 8px;
+            margin: 3px;
             color: black;
             font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
             position: relative;
             cursor: pointer;
             border: 1px solid rgba(0,0,0,0.1);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .card:hover {
@@ -164,11 +166,14 @@
 
         .game-table {
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             position: relative;
-            min-height: 400px;
+            min-height: 350px;
+            margin: 0 auto;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         .player-area, .bot-area {
@@ -455,45 +460,111 @@
 
         /* Mobile-first стили */
         @media (max-width: 768px) {
+            body {
+                padding: 5px;
+                overflow-x: hidden;
+            }
+
             .max-w-4xl {
-                max-width: 95%;
-                padding: 10px;
+                max-width: 100%;
+                padding: 5px;
             }
 
             .card {
-                width: 45px;
-                height: 70px;
+                width: 35px;
+                height: 50px;
+                font-size: 8px;
+                margin: 2px;
+                padding: 3px;
+            }
+
+            .card-value {
+                font-size: 16px;
+            }
+
+            .card-suit {
+                font-size: 18px;
+            }
+
+            .card-corner {
+                font-size: 10px;
+            }
+
+            .trump-card, .discard-pile, .deck {
+                width: 30px;
+                height: 45px;
+            }
+
+            .text-lg, .text-xl {
+                font-size: 0.9rem;
+            }
+
+            .text-2xl {
+                font-size: 1.1rem;
+            }
+
+            .text-3xl {
+                font-size: 1.3rem;
+            }
+
+            .game-table {
+                padding: 5px;
+                min-height: 300px;
+            }
+
+            .trump-discard-area {
+                right: 5px;
+                gap: 3px;
+            }
+
+            .btn, .action-btn {
+                padding: 6px 8px;
                 font-size: 12px;
                 margin: 3px;
             }
 
-            .text-lg, .text-xl {
-                font-size: 1rem;
+            .battle-field {
+                gap: 3px;
+                margin: 10px 0;
+                min-height: 100px;
             }
 
-            .text-2xl {
-                font-size: 1.3rem;
-            }
-
-            body {
+            .game-info {
                 padding: 5px;
+                flex-direction: column;
+                font-size: 12px;
             }
 
-            .game-table {
-                padding: 10px;
+            .rules-content {
+                padding: 15px;
+                max-width: 95%;
             }
 
-            .trump-discard-area {
-                gap: 5px;
+            .difficulty-btn {
+                padding: 8px;
+                margin: 5px;
             }
 
-            .btn, .action-btn {
-                padding: 8px 12px;
+            .player-area, .bot-area {
+                margin: 10px 0;
+            }
+
+            .bet-input {
+                padding: 8px;
                 font-size: 14px;
             }
+        }
 
-            .battle-field {
-                gap: 5px;
+        /* Extra small devices */
+        @media (max-width: 400px) {
+            .card {
+                width: 30px;
+                height: 45px;
+            }
+
+            .trump-card, .discard-pile, .deck {
+                width: 25px;
+                height: 40px;
             }
         }
     </style>
@@ -512,7 +583,7 @@
                 <div class="flex items-center justify-center mb-6">
                     <i class="fas fa-coins text-yellow-400 text-3xl mr-3"></i>
                     <span id="balance" class="text-3xl font-bold">1000</span>
-                    <span class="text-xl ml-1">MIVRO</span>
+                    <span class="text-xl ml-1">DINO</span>
                 </div>
             </div>
 
@@ -520,7 +591,7 @@
                 <h2 class="text-2xl font-bold mb-4">Настройки игры</h2>
 
                 <div class="mb-6">
-                    <label class="block text-lg mb-2">Ваша ставка (MIVRO)</label>
+                    <label class="block text-lg mb-2">Ваша ставка (DINO)</label>
                     <input id="bet-amount" type="number" min="10" max="1000" value="50" class="bet-input">
                 </div>
 
@@ -994,19 +1065,32 @@
             return battleField.some(pair => pair[0].value === card.value || (pair[1] && pair[1].value === card.value));
         }
 
-        // Check if defendCard can beat attackCard
+        // Improved card comparison logic
         function canBeat(attackCard, defendCard) {
-            // Козырь бьет любую не козырную карту
+            // Same suit comparison
+            if (defendCard.suit === attackCard.suit) {
+                return values.indexOf(defendCard.value) > values.indexOf(attackCard.value);
+            }
+            // Trump beats non-trump
             if (defendCard.suit === trumpSuit && attackCard.suit !== trumpSuit) {
                 return true;
             }
-            // Козырь бьет козырь только если старше
-            if (defendCard.suit === trumpSuit && attackCard.suit === trumpSuit) {
-                return values.indexOf(defendCard.value) > values.indexOf(attackCard.value);
+            // Non-trump can't beat trump
+            if (attackCard.suit === trumpSuit && defendCard.suit !== trumpSuit) {
+                return false;
             }
-            // Карта той же масти бьет только если старше
-            if (defendCard.suit === attackCard.suit) {
-                return values.indexOf(defendCard.value) > values.indexOf(attackCard.value);
+            // Different non-trump suits can't beat each other
+            return false;
+        }
+
+        // Improved canAttack function
+        function canAttack(card) {
+            if (battleField.length === 0) return true;
+            
+            // Check if card value matches any on the table
+            for (let pair of battleField) {
+                if (pair[0].value === card.value) return true;
+                if (pair[1] && pair[1].value === card.value) return true;
             }
             return false;
         }
@@ -1071,7 +1155,7 @@
             }, 2000 + Math.random() * 1000);
         }
 
-        // Bot defend logic
+        // Enhanced bot defend logic
         function botDefend() {
             let allDefended = true;
 
@@ -1080,28 +1164,45 @@
                     const attackCard = battleField[i][0];
                     let possibleDefends = botHand.filter(card => canBeat(attackCard, card));
 
+                    // EASY: 40% chance to take cards randomly
+                    if (difficultyLevel === 'easy' && Math.random() < 0.4) {
+                        allDefended = false;
+                        continue;
+                    }
+
+                    // MEDIUM: 20% chance to take cards when have few trumps
+                    if (difficultyLevel === 'medium' && Math.random() < 0.2) {
+                        const trumpCount = botHand.filter(c => c.suit === trumpSuit).length;
+                        if (trumpCount < 2) {
+                            allDefended = false;
+                            continue;
+                        }
+                    }
+
                     if (possibleDefends.length > 0) {
                         let defendCard;
 
+                        // Sort possible defends by value (low to high)
+                        possibleDefends.sort((a, b) => {
+                            if (a.suit === trumpSuit && b.suit !== trumpSuit) return 1;
+                            if (b.suit === trumpSuit && a.suit !== trumpSuit) return -1;
+                            return values.indexOf(a.value) - values.indexOf(b.value);
+                        });
+
                         if (difficultyLevel === 'easy') {
-                            // Лёгкий: случайный выбор карты для защиты
+                            // EASY: Random card from possible options
                             defendCard = possibleDefends[Math.floor(Math.random() * possibleDefends.length)];
                         } else if (difficultyLevel === 'medium') {
-                            // Средний: выбираем наименее ценную карту (не козырь или младший)
-                            possibleDefends.sort((a, b) => {
-                                if (a.suit === trumpSuit && b.suit !== trumpSuit) return 1;
-                                if (b.suit === trumpSuit && a.suit !== trumpSuit) return -1;
-                                return values.indexOf(a.value) - values.indexOf(b.value);
-                            });
-                            defendCard = possibleDefends[0];
+                            // MEDIUM: Use non-trump if available, otherwise random trump
+                            const nonTrumps = possibleDefends.filter(c => c.suit !== trumpSuit);
+                            defendCard = nonTrumps.length > 0 ? nonTrumps[0] : possibleDefends[0];
                         } else {
-                            // Сложный: используем козырь только если нет других вариантов
-                            const nonTrumpDefends = possibleDefends.filter(card => card.suit !== trumpSuit);
-                            if (nonTrumpDefends.length > 0) {
-                                nonTrumpDefends.sort((a, b) => values.indexOf(a.value) - values.indexOf(b.value));
-                                defendCard = nonTrumpDefends[0];
+                            // HARD: Use minimal card to save trumps when possible
+                            const nonTrumps = possibleDefends.filter(c => c.suit !== trumpSuit);
+                            if (nonTrumps.length > 0) {
+                                defendCard = nonTrumps[0];
                             } else {
-                                possibleDefends.sort((a, b) => values.indexOf(a.value) - values.indexOf(b.value));
+                                // Use highest trump only when necessary
                                 defendCard = possibleDefends[0];
                             }
                         }
@@ -1110,17 +1211,9 @@
                             card.suit === defendCard.suit && card.value === defendCard.value
                         );
 
-                        // Лёгкий уровень: 30% шанс взять карты вместо защиты
-                        if (difficultyLevel === 'easy' && Math.random() < 0.3) {
-                            allDefended = false;
-                            break;
-                        }
-
                         battleField[i][1] = botHand.splice(defendIndex, 1)[0];
-                        updateUI();
                     } else {
                         allDefended = false;
-                        break;
                     }
                 }
             }
@@ -1147,8 +1240,36 @@
             }
         }
 
-        // Bot attack logic
+        // Enhanced bot attack logic
         function botAttack() {
+            // EASY: Randomly skip turn 10% of time
+            if (difficultyLevel === 'easy' && Math.random() < 0.1 && battleField.length > 0) {
+                discardBattleField();
+                currentTurn = 'player';
+                isDefending = false;
+                gameMessage.textContent = 'Бот пропускает ход. Ваш ход.';
+                showNotification('Бот пропустил ход');
+                dealCards();
+                updateUI();
+                checkGameEnd();
+                return;
+            }
+
+            // Sort bot hand by strategic value
+            botHand.sort((a, b) => {
+                // For attack, we prefer lower non-trump cards first
+                if (a.suit === trumpSuit && b.suit !== trumpSuit) return 1;
+                if (b.suit === trumpSuit && a.suit !== trumpSuit) return -1;
+                
+                // For easy and medium, attack with lower cards
+                if (difficultyLevel !== 'hard') {
+                    return values.indexOf(a.value) - values.indexOf(b.value);
+                }
+                // For hard, attack with higher non-trump cards or lowest trump
+                return a.suit === trumpSuit 
+                    ? values.indexOf(a.value) - values.indexOf(b.value)
+                    : values.indexOf(b.value) - values.indexOf(a.value);
+            });
             if (botHand.length === 0) {
                 checkGameEnd();
                 return;
@@ -1362,7 +1483,7 @@
             for (let i = 0; i < 30; i++) {
                 const coin = document.createElement('div');
                 coin.className = 'coin';
-                coin.textContent = 'M';
+                coin.textContent = 'D';
                 const left = Math.random() * 100;
                 const delay = Math.random() * 2;
                 const duration = 2 + Math.random() * 3;
