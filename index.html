@@ -2,1948 +2,591 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DINO Дурак</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WAVELENGTH · мобильная</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
-            font-family: 'Rubik', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
-            min-height: 100vh;
-            overflow-x: hidden;
+            background: #0b0b12;  /* глубокий фон для контраста */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100dvh;
+            font-family: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
+            touch-action: pan-y;   
+            padding: 8px;
         }
 
-        .btn {
-            transition: all 0.2s ease;
-            transform: scale(1);
-            font-weight: 600;
-        }
-
-        .btn:hover {
-            transform: scale(1.03);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .purple-gradient {
-            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
-        }
-
-        .green-gradient {
-            background: linear-gradient(45deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .orange-gradient {
-            background: linear-gradient(45deg, #f46b45 0%, #eea849 100%);
-        }
-
-        .blue-gradient {
-            background: linear-gradient(45deg, #0575e6 0%, #021b79 100%);
-        }
-
-        .gold-gradient {
-            background: linear-gradient(45deg, #ffd700 0%, #f7971e 100%);
-        }
-
-        .red-gradient {
-            background: linear-gradient(45deg, #ed213a 0%, #93291e 100%);
-        }
-
-        .section {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .active-section {
-            display: block;
-        }
-
-        .card {
-            width: 12vw;
-            height: 18vw;
-            max-width: 60px;
-            max-height: 90px;
-            min-width: 40px;
-            min-height: 60px;
-            background: white;
-            border-radius: 5px;
+        #wrap {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            padding: 5px;
-            margin: 2px;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease;
-            position: relative;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 8px 0 12px;
+            width: 100%;
+            max-width: 420px;       /* комфортная ширина для мобилы */
+            margin: 0 auto;
+        }
+
+        #cv {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 320 / 520;
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: #f5f5fc;
+            box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            touch-action: none;      /* полностью блокируем скролл на канвасе */
             cursor: pointer;
-            border: 2px solid #d4af37;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .card.selected {
-            transform: translateY(-10px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
-            border: 2px solid gold;
-        }
-
-        .card.red {
-            color: #e74c3c;
-        }
-
-        .card.black {
-            color: #2c3e50;
-        }
-
-        .card-corner {
-            position: absolute;
-            font-size: 14px;
-            line-height: 1;
-            font-weight: bold;
-            color: inherit;
-            text-shadow: 0 0 2px white, 0 0 4px white;
-        }
-
-        .card-corner-top {
-            top: 3px;
-            left: 3px;
-            text-align: left;
-        }
-
-        .card-corner-bottom {
-            bottom: 3px;
-            right: 3px;
-            text-align: right;
-            transform: rotate(180deg);
-        }
-
-        .card-center {
+        .btns {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            font-size: 3.5vw;
-        }
-
-        .card-value {
-            font-size: 2vw;
-            max-font-size: 10px;
-            font-weight: bold;
-            text-align: center;
-            background: linear-gradient(45deg, #f3e7c9, #ffffff);
-            border-radius: 3px;
-            padding: 2px 4px;
-            margin-bottom: 2px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-suit-large {
-            font-size: 4vw;
-            max-font-size: 20px;
-            line-height: 1;
-        }
-
-        .card-pattern {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0.1;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www3.org/2000/svg" width="20" height="20"><path d="M10 5a5 5 0 0 0-5 5 5 5 0 0 0 5 5 5 5 0 0 0 5-5 5 5 0 0 0-5-5zm0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z" fill="%23aaaaaa"/></svg>') repeat;
-        }
-
-        .figure-card .card-center {
-            background: linear-gradient(45deg, #f3e7c9, #ffffff);
-            border: 1px solid #d4af37;
-            border-radius: 3px;
-            padding: 4px;
-        }
-
-        .card-back {
-            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 5vw;
-            max-font-size: 24px;
-            position: relative;
-            overflow: hidden;
-            border: 2px solid #d4af37;
-        }
-
-        .card-back::before {
-            content: "";
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
-            background: linear-gradient(45deg,
-                rgba(255,255,255,0.1) 0%,
-                rgba(255,255,255,0.3) 50%,
-                rgba(255,255,255,0.1) 100%);
-            transform: rotate(45deg);
-        }
-
-        .game-table {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-            position: relative;
-            min-height: 40vh;
-            margin: 0 auto;
+            gap: 12px;
             width: 100%;
-            overflow: hidden;
+            padding: 0 4px;
         }
 
-        .player-area, .bot-area {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 10px 0;
-        }
-
-        .trump-discard-area {
-            position: absolute;
-            top: 50%;
-            right: 5px;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .trump-card, .discard-pile, .deck {
-            width: 8vw;
-            height: 12vw;
-            max-width: 40px;
-            max-height: 60px;
-            min-width: 30px;
-            min-height: 45px;
-        }
-
-        .trump-card {
-            transform: rotate(90deg);
-        }
-
-        .battle-field {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 15px 0;
-            min-height: 15vh;
-            gap: 5px;
-        }
-
-        .battle-pair {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .win-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(45deg, #27ae60, #2ecc71);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            z-index: 1000;
-            text-align: center;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 0.3s;
-            width: 80%;
-            max-width: 300px;
-        }
-
-        .win-popup h3 {
-            font-size: 20px;
-            margin-bottom: 8px;
-        }
-
-        .win-popup p {
+        .btn {
+            flex: 1;
+            padding: 18px 0;          /* крупные кнопки — легко попасть */
             font-size: 16px;
-            margin-bottom: 15px;
-        }
-
-        .win-popup button {
-            background: white;
-            color: #27ae60;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-weight: bold;
+            font-weight: 600;
+            font-family: inherit;
+            letter-spacing: 0.08em;
+            background: #1e1e2c;
+            border: 1px solid #3a3a5a;
+            border-radius: 44px;
+            color: #f0eef8;
+            box-shadow: 0 6px 0 #0f0f18, 0 4px 12px rgba(0,0,0,0.3);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.08s ease;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            text-transform: uppercase;
+            backdrop-filter: blur(4px);
         }
 
-        .win-popup button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #0f0f18, 0 4px 10px rgba(0,0,0,0.3);
+            background: #2d2d44;
+            border-color: #5f5f8a;
         }
 
-        .coins-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 999;
+        /* цветовые акценты для кнопок (опционально) */
+        #bc {
+            background: #2a2a40;
+            border-color: #6d6da0;
+            color: #e3e0ff;
         }
 
-        .coin {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            background: linear-gradient(45deg, #ffd700, #f7971e);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #8b6914;
-            animation: coin-fall linear;
-            opacity: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .particle {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: radial-gradient(circle, rgba(255,255,255,0.8), rgba(255,215,0,0.4));
-            border-radius: 50%;
-            animation: particle-burst 1.5s ease-out;
-            opacity: 0;
-        }
-
-        @keyframes coin-fall {
-            0% {
-                transform: translateY(-100px) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(calc(100vh + 100px)) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        @keyframes particle-burst {
-            0% {
-                transform: translate(0, 0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px)) scale(0);
-                opacity: 0;
-            }
-        }
-
-        .bet-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            color: white;
-            font-size: 16px;
-            width: 100%;
-            text-align: center;
-            margin: 8px 0;
-        }
-
-        .bet-input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .difficulty-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 12px;
-            margin: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .difficulty-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .difficulty-btn.selected {
-            background: linear-gradient(45deg, #6a11cb, #2575fc);
-            transform: scale(1.03);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .game-message {
-            position: absolute;
-            top: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px 16px;
-            border-radius: 16px;
-            font-size: 14px;
-            z-index: 100;
-            white-space: nowrap;
-            max-width: 90%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .action-btn {
-            margin: 8px;
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-
-        .action-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .action-btn:hover:not(:disabled) {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .card-placeholder {
-            width: 12vw;
-            height: 18vw;
-            max-width: 60px;
-            max-height: 90px;
-            min-width: 40px;
-            min-height: 60px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-            margin: 2px;
-            border: 1px dashed rgba(255,255,255,0.3);
-        }
-
-        .rules-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s;
-        }
-
-        .rules-content {
-            background: white;
-            color: #2c3e50;
-            padding: 16px;
-            border-radius: 12px;
-            max-width: 90%;
-            width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .notification-plaque {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(45deg, #ff6b6b, #e74c3c);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 1001;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            animation: fadeInOut 2s ease;
-            display: none;
-            max-width: 80%;
-            text-align: center;
-        }
-
-        .pass-notification {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(45deg, #f1c40f, #e67e22);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            z-index: 1001;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            animation: fadeInOut 1s ease;
-            display: none;
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -60%); }
-            10% { opacity: 1; transform: translate(-50%, -50%); }
-            90% { opacity: 1; transform: translate(-50%, -50%); }
-            100% { opacity: 0; transform: translate(-50%, -40%); }
-        }
-
-        .confirm-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s;
-        }
-
-        .confirm-content {
-            background: white;
-            color: #2c3e50;
-            padding: 20px;
-            border-radius: 12px;
-            max-width: 90%;
-            width: 300px;
-            text-align: center;
-        }
-
-        .confirm-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .confirm-btn {
-            padding: 8px 16px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .confirm-btn-yes {
-            background: linear-gradient(45deg, #ff6b6b, #e74c3c);
-            color: white;
-        }
-
-        .confirm-btn-no {
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            color: white;
-        }
-
-        /* Responsive adjustments */
-        @media (min-width: 640px) {
-            .card {
-                width: 60px;
-                height: 90px;
-            }
-
-            .card-corner {
-                font-size: 10px;
-            }
-
-            .card-center {
-                font-size: 16px;
-            }
-
-            .card-suit-large {
-                font-size: 24px;
-            }
-
-            .trump-card, .discard-pile, .deck {
-                width: 40px;
-                height: 60px;
-            }
-
-            .card-placeholder {
-                width: 60px;
-                height: 90px;
-            }
-
-            .rotate-90 {
-                transform: rotate(90deg);
-            }
-        }
-
-        .card-value {
-            display: none;
-        }
-
-        .card.red .card-suit-large {
-            color: #e74c3c;
-        }
-
-        .card.black .card-suit-large {
-            color: #2c3e50;
-        }
-
-        .card.red .card-corner {
-            color: #e74c3c !important;
-        }
-
-        .card.black .card-corner {
-            color: #2c3e50 !important;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .green-gradient-active {
-            background: linear-gradient(45deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        /* Daily bonus modal styles */
-        .daily-bonus-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s;
-        }
-
-        .daily-bonus-content {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border-radius: 16px;
-            padding: 20px;
-            width: 90%;
-            max-width: 350px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        }
-
-        .daily-bonus-title {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            background: linear-gradient(45deg, #ffd700, #f7971e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .daily-bonus-amount {
-            font-size: 28px;
-            font-weight: bold;
-            margin: 15px 0;
-            color: #ffd700;
-        }
-
-        .daily-bonus-timer {
-            font-size: 14px;
-            color: #aaa;
-            margin-bottom: 20px;
-        }
-
-        .daily-bonus-divider {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 20px 0;
-        }
-
-        .telegram-promo {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-
-        .telegram-promo-title {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: #ffd700;
-        }
-
-        .telegram-promo-amount {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 10px 0;
-            color: #38ef7d;
-        }
-
-        /* Mobile specific styles */
-        @media (max-width: 640px) {
-            .card {
-                width: 50px;
-                height: 75px;
-                min-width: 40px;
-                min-height: 60px;
-            }
-
-            .card-corner {
-                font-size: 10px;
-            }
-
-            .card-center {
-                font-size: 14px;
-            }
-
-            .card-suit-large {
-                font-size: 18px;
-            }
-
-            .trump-card, .discard-pile, .deck {
-                width: 30px;
-                height: 45px;
-            }
-
-            .game-table {
-                padding: 8px;
-            }
-
-            .bet-input {
-                padding: 10px;
-                font-size: 14px;
-            }
-
-            .difficulty-btn {
-                padding: 8px;
-                font-size: 12px;
-            }
-
-            .action-btn {
-                padding: 6px 12px;
-                font-size: 12px;
-            }
-
-            .daily-bonus-content {
-                padding: 15px;
-            }
-
-            .daily-bonus-title {
-                font-size: 20px;
-            }
-
-            .daily-bonus-amount {
-                font-size: 24px;
-            }
-        }
-
-        /* Small screens landscape orientation */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .game-table {
-                min-height: 60vh;
-            }
-
-            .card {
-                width: 40px;
-                height: 60px;
-                min-width: 30px;
-                min-height: 45px;
-            }
-
-            .card-corner {
-                font-size: 8px;
-            }
-
-            .card-center {
-                font-size: 12px;
-            }
-
-            .card-suit-large {
-                font-size: 16px;
-            }
-
-            .trump-card, .discard-pile, .deck {
-                width: 25px;
-                height: 38px;
-
-            .green-gradient-active {
-    background: linear-gradient(45deg, #11998e 0%, #38ef7d 100%);
+        /* на очень узких экранах чуть меньше кнопки */
+        @media (max-width: 380px) {
+            .btn {
+                padding: 16px 0;
+                font-size: 15px;
             }
         }
     </style>
 </head>
-<body class="p-4">
-    <div class="max-w-md mx-auto">
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">DINO Дурак</h1>
-            <p class="text-lg opacity-80">Играйте и зарабатывайте DINO</p>
-        </div>
-
-        <!-- Главное меню -->
-        <div id="main-menu" class="section active-section">
-            <div class="bg-gray-800 bg-opacity-50 rounded-xl p-5 mb-6 relative">
-                <h2 class="text-xl font-bold mb-3">Ваш баланс</h2>
-                <div class="flex items-center justify-center mb-4">
-                    <i class="fas fa-coins text-yellow-400 text-2xl mr-2"></i>
-                    <span id="balance" class="text-2xl font-bold">10000</span>
-                    <span class="text-lg ml-1">DINO</span>
-                </div>
-                <button id="daily-bonus-btn" class="absolute top-2 right-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full w-10 h-10 flex items-center justify-center">
-                    <i class="fas fa-gift"></i>
-                </button>
-            </div>
-
-            <div class="bg-gray-800 bg-opacity-50 rounded-xl p-5">
-                <h2 class="text-xl font-bold mb-3">Настройки игры</h2>
-
-                <div class="mb-4">
-                    <label class="block text-base mb-1">Ваша ставка (DINO)</label>
-                    <input id="bet-amount" type="number" min="10" max="10000" value="100" class="bet-input">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-base mb-1">Уровень сложности</label>
-                    <div class="grid grid-cols-3 gap-1">
-                        <div id="easy" class="difficulty-btn selected" data-multiplier="1.2" data-level="easy">
-                            <i class="fas fa-smile text-green-400 text-xl mb-1"></i>
-                            <h3 class="text-sm">Легко</h3>
-                            <p class="text-xs opacity-70">x1.2</p>
-                        </div>
-                        <div id="medium" class="difficulty-btn" data-multiplier="1.5" data-level="medium">
-                            <i class="fas fa-meh text-yellow-400 text-xl mb-1"></i>
-                            <h3 class="text-sm">Средне</h3>
-                            <p class="text-xs opacity-70">x1.5</p>
-                        </div>
-                        <div id="hard" class="difficulty-btn" data-multiplier="2" data-level="hard">
-                            <i class="fas fa-frown text-red-400 text-xl mb-1"></i>
-                            <h3 class="text-sm">Сложно</h3>
-                            <p class="text-xs opacity-70">x2</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 gap-2">
-                    <button id="start-game" class="w-full py-3 rounded-xl purple-gradient text-lg font-bold btn">
-                        Начать <i class="fas fa-play ml-1"></i>
-                    </button>
-                    <button id="rules-btn" class="w-full py-3 rounded-xl blue-gradient text-lg font-bold btn">
-                        Правила <i class="fas fa-book ml-1"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Модальное окно ежедневного бонуса -->
-        <div id="daily-bonus-modal" class="daily-bonus-modal hidden">
-            <div class="daily-bonus-content">
-                <h2 class="daily-bonus-title">Ежедневный бонус</h2>
-                <p>Получайте бонус каждые 24 часа</p>
-
-                <div class="daily-bonus-amount">1,000 DINO</div>
-
-                <div id="bonus-timer" class="daily-bonus-timer">Доступно через: 23:59:59</div>
-
-                <button id="claim-daily-bonus" class="w-full py-3 rounded-xl gold-gradient text-lg font-bold btn mb-4">
-                    Забрать бонус
-                </button>
-
-                <div class="daily-bonus-divider"></div>
-
-                <div class="telegram-promo">
-                    <div class="telegram-promo-title">Подпишитесь на наш Telegram</div>
-                    <div class="telegram-promo-amount">+100,000 DINO</div>
-                    <p class="text-sm mb-3">Получайте эксклюзивные бонусы и обновления</p>
-                    <a href="https://t.me/dinogamed" target="_blank" class="w-full py-2 rounded-xl blue-gradient text-base font-bold btn mb-2">
-                        <i class="fab fa-telegram-plane mr-2"></i> Подписаться
-                    </a>
-                    <button id="claim-telegram-bonus" class="w-full py-2 rounded-xl bg-gray-600 text-base font-bold btn mt-2" disabled>
-                    <i class="fas fa-gift mr-2"></i> Подпишитесь, чтобы забрать
-                    </button>
-                </div>
-
-                <button id="close-daily-bonus" class="mt-4 w-full py-2 rounded-xl bg-gray-700 text-base font-bold btn">
-                    Закрыть
-                </button>
-            </div>
-        </div>
-
-        <!-- Игровой экран -->
-        <div id="game-screen" class="section">
-            <div class="game-table">
-                <div class="game-info flex justify-between mb-3 p-3 bg-gray-800 rounded-lg text-sm">
-                    <div>
-                        Ставка: <span id="current-bet" class="text-yellow-400">100</span> DINO
-                    </div>
-                    <div>
-                        Выигрыш: <span id="possible-win" class="text-green-400">120</span> DINO
-                    </div>
-                </div>
-                <div id="game-message" class="game-message">Игра началась...</div>
-                <div id="notification-plaque" class="notification-plaque"></div>
-                <div id="pass-notification" class="pass-notification">Игрок: Пасс</div>
-
-                <div class="bot-area">
-                    <div id="bot-cards" class="flex flex-wrap justify-center"></div>
-                    <div id="bot-thinking" class="ml-2 hidden">
-                        <div class="flex space-x-1">
-                            <div class="w-1 h-1 bg-white rounded-full animate-bounce"></div>
-                            <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                            <div class="w-1 h-1 bg-white rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="battle-field" id="battle-field"></div>
-
-                <div class="player-area">
-                    <div id="player-cards" class="flex flex-wrap justify-center"></div>
-                </div>
-
-                <div class="trump-discard-area">
-                    <div id="deck" class="deck card card-back"><i class="fas fa-crown"></i></div>
-                    <div id="trump-card" class="trump-card card"></div>
-                    <div id="discard-pile" class="discard-pile card card-back"><i class="fas fa-trash"></i></div>
-                </div>
-
-                <div class="flex justify-center mt-4">
-                    <button id="take-btn" class="action-btn red-gradient hidden">Взять</button>
-                    <button id="pass-btn" class="action-btn orange-gradient hidden">Пасс</button>
-                </div>
-
-                <div class="flex justify-center mt-4">
-                    <button id="back-to-menu" class="py-2 px-4 rounded-xl bg-gray-700 text-base font-bold btn">
-                        <i class="fas fa-arrow-left mr-1"></i> В меню
-                    </button>
-                </div>
-            </div>
-
-            <!-- Попап победы -->
-            <div id="win-popup" class="win-popup" style="display: none;">
-                <h3 id="win-title">Победа!</h3>
-                <p id="win-message">Вы выиграли <span id="win-amount">120</span> DINO!</p>
-                <div id="coins-animation" class="coins-animation"></div>
-                <button id="win-ok" class="py-2 px-4 rounded-xl bg-white text-green-500 font-bold">OK</button>
-            </div>
-
-            <!-- Модальное окно правил -->
-            <div id="rules-modal" class="rules-modal hidden">
-                <div class="rules-content">
-                    <h2 class="text-xl font-bold mb-3">Правила игры Дурак</h2>
-                    <ul class="list-disc pl-5 space-y-2 text-sm">
-                        <li><strong>Цель:</strong> Сбросить все свои карты первым.</li>
-                        <li><strong>Колода:</strong> 36 карт (6–A, ♠♥♦♣).</li>
-                        <li><strong>Козырь:</strong> Масть, бьющая любые другие.</li>
-                        <li><strong>Карты:</strong> 6 (младшая) до A (старшая).</li>
-                        <li><strong>Ход:</strong> Атакующий кладёт карту. Защитник бьёт старшей картой той же масти или козырем.</li>
-                        <li><strong>Добор:</strong> Игроки добирают до 6 карт после хода.</li>
-                        <li><strong>Взять/Бито:</strong> Если не отбиться, защитник берёт карты. Если отбился, карты сбрасываются.</li>
-                    </ul>
-                    <button id="close-rules" class="mt-3 w-full py-2 rounded-xl purple-gradient text-base font-bold btn">
-                        Закрыть
-                    </button>
-                </div>
-            </div>
-
-            <!-- Модальное окно подтверждения выхода -->
-            <div id="confirm-exit-modal" class="confirm-modal hidden">
-                <div class="confirm-content">
-                    <h3 class="text-lg font-bold mb-4">Вы уверены, что хотите выйти?</h3>
-                    <p class="mb-4">Текущая игра будет потеряна.</p>
-                    <div class="confirm-buttons">
-                        <button id="confirm-exit-yes" class="confirm-btn confirm-btn-yes">Да</button>
-                        <button id="confirm-exit-no" class="confirm-btn confirm-btn-no">Нет</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<body>
+<div id="wrap">
+    <canvas id="cv"></canvas>
+    <div class="btns">
+        <button class="btn" id="bl">← LEFT</button>
+        <button class="btn" id="bc">◈ COLOR</button>
+        <button class="btn" id="br">RIGHT →</button>
     </div>
+</div>
+<script>
+    (function(){
+        const cv = document.getElementById('cv');
+        const ctx = cv.getContext('2d');
 
-    <script>
-    // Game data
-    const suits = ['♠', '♥', '♦', '♣'];
-    const values = ['6', '7', '8', '9', '10', 'В', 'Д', 'К', 'Т'];
-    const fullValues = ['6', '7', '8', '9', '10', 'Валет', 'Дама', 'Король', 'Туз'];
-    let deck = [];
-    let playerHand = [];
-    let botHand = [];
-    let battleField = [];
-    let discardPile = [];
-    let trumpSuit = '';
-    let trumpCard = null;
-    let currentTurn = 'player';
-    let gameActive = false;
-    let botTimeout = null;
-    let currentBet = 100;
-    let difficultyMultiplier = 1.2;
-    let difficultyLevel = 'easy';
-    let isDefending = false;
-    let balance = 10000;
-    let isTrumpCardInDeck = true;
-    let knownPlayerCards = [];
+        // ----- размеры (физический канвас 320x520, но через CSS растягивается) -----
+        const IW = 320, IH = 520;
+        cv.width = IW; cv.height = IH;
 
-    // Daily bonus variables
-    const DAILY_BONUS_AMOUNT = 1000;
-    const TELEGRAM_BONUS_AMOUNT = 100000;
-    const BONUS_COOLDOWN = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-    let lastBonusClaimTime = localStorage.getItem('lastBonusClaimTime') || 0;
-    let bonusTimerInterval = null;
+        // ----- константы игры -----
+        const COLS = ['#E24B4A', '#4aaa5a', '#378ADD'];
+        const CNAMES = ['RED', 'GRN', 'BLU'];
+        const CFILL = ['#FDE8E8', '#E8F5EB', '#E8F1FD'];
+        const LANES = 3;
+        const LANE_WIDTH = IW / LANES;
+        const LANE_X = (lane) => LANE_WIDTH * lane + LANE_WIDTH / 2;
+        const PLAYER_Y = IH - 70;
+        const PLAYER_RADIUS = 18;      // увеличил для мобилы
 
-    // DOM elements
-    const mainMenu = document.getElementById('main-menu');
-    const gameScreen = document.getElementById('game-screen');
-    const balanceDisplay = document.getElementById('balance');
-    const betInput = document.getElementById('bet-amount');
-    const currentBetDisplay = document.getElementById('current-bet');
-    const possibleWinDisplay = document.getElementById('possible-win');
-    const difficultyButtons = document.querySelectorAll('.difficulty-btn');
-    const startGameBtn = document.getElementById('start-game');
-    const backToMenuBtn = document.getElementById('back-to-menu');
-    const playerCardsEl = document.getElementById('player-cards');
-    const botCardsEl = document.getElementById('bot-cards');
-    const battleFieldEl = document.getElementById('battle-field');
-    const deckEl = document.getElementById('deck');
-    const trumpCardEl = document.getElementById('trump-card');
-    const discardPileEl = document.getElementById('discard-pile');
-    const gameMessage = document.getElementById('game-message');
-    const takeBtn = document.getElementById('take-btn');
-    const passBtn = document.getElementById('pass-btn');
-    const winPopup = document.getElementById('win-popup');
-    const winTitle = document.getElementById('win-title');
-    const winMessage = document.getElementById('win-message');
-    const winAmount = document.getElementById('win-amount');
-    const winOk = document.getElementById('win-ok');
-    const coinsAnimation = document.getElementById('coins-animation');
-    const rulesBtn = document.getElementById('rules-btn');
-    const rulesModal = document.getElementById('rules-modal');
-    const closeRulesBtn = document.getElementById('close-rules');
-    const botThinkingEl = document.getElementById('bot-thinking');
-    const notificationPlaque = document.getElementById('notification-plaque');
-    const passNotification = document.getElementById('pass-notification');
-    const confirmExitModal = document.getElementById('confirm-exit-modal');
-    const confirmExitYes = document.getElementById('confirm-exit-yes');
-    const confirmExitNo = document.getElementById('confirm-exit-no');
+        // ----- состояние игры -----
+        let hiScore = 0;
+        let game = createGame();
 
-    // Daily bonus elements
-    const dailyBonusBtn = document.getElementById('daily-bonus-btn');
-    const dailyBonusModal = document.getElementById('daily-bonus-modal');
-    const claimDailyBonusBtn = document.getElementById('claim-daily-bonus');
-    const bonusTimerEl = document.getElementById('bonus-timer');
-    const closeDailyBonusBtn = document.getElementById('close-daily-bonus');
-    const telegramPromoLink = document.querySelector('.telegram-promo a');
-
-    // Back to main menu function
-    function backToMainMenu() {
-        if (gameActive) {
-            confirmExitModal.classList.remove('hidden');
-        } else {
-            saveBalance();
-            mainMenu.classList.add('active-section');
-            gameScreen.classList.remove('active-section');
+        function createGame() {
+            return {
+                phase: 'start',          // 'start', 'play', 'dead'
+                pLane: 1,
+                pColor: 0,
+                pX: LANE_X(1),
+                lives: 3,
+                score: 0,
+                speed: 2.4,
+                obstacles: [],
+                particles: [],
+                frame: 0,
+                spawnTimer: 0,
+                spawnInterval: 80,        // чуть реже на старте, чтобы комфортно
+                flash: 0,
+                flashColor: '',
+                hiScore: hiScore
+            };
         }
-    }
 
-    // Show notification plaque
-    function showNotification(message, duration = 2000) {
-        notificationPlaque.textContent = message;
-        notificationPlaque.style.display = 'block';
-        setTimeout(() => {
-            notificationPlaque.style.display = 'none';
-        }, duration);
-    }
+        // ----- хелперы -----
+        function moveLane(delta) {
+            game.pLane = Math.max(0, Math.min(LANES - 1, game.pLane + delta));
+        }
 
-    // Show pass notification
-    function showPassNotification() {
-        passNotification.style.display = 'block';
-        setTimeout(() => {
-            passNotification.style.display = 'none';
-        }, 1000);
-    }
+        function cycleColor() {
+            game.pColor = (game.pColor + 1) % COLS.length;
+        }
 
-    // Initialize game
-    function initGame() {
-        clearTimeout(botTimeout);
-        playerHand = [];
-        botHand = [];
-        battleField = [];
-        discardPile = [];
-        currentTurn = 'player';
-        gameActive = true;
-        isDefending = false;
-        isTrumpCardInDeck = true;
-        knownPlayerCards = [];
+        function startGame() {
+            hiScore = game.hiScore;
+            game = createGame();
+            game.hiScore = hiScore;
+            game.phase = 'play';
+        }
 
-        deck = [];
-        for (let suit of suits) {
-            for (let value of values) {
-                deck.push({ suit, value });
+        // ----- обработка клавиатуры (для дебага / внешней клавы) -----
+        document.addEventListener('keydown', (e) => {
+            const key = e.code;
+            if (['ArrowLeft', 'ArrowRight', 'Space', 'KeyA', 'KeyD', 'KeyX'].includes(key)) {
+                e.preventDefault();
             }
-        }
-
-        shuffleDeck();
-
-        // Выбираем козырную карту и убираем её из колоды
-        const trumpIndex = Math.floor(Math.random() * deck.length);
-        trumpCard = deck[trumpIndex];
-        trumpSuit = trumpCard.suit;
-        deck.splice(trumpIndex, 1);
-
-        dealCards();
-
-        determineFirstTurn();
-
-        updateUI();
-
-        if (currentTurn === 'bot') {
-            gameMessage.textContent = 'Бот начинает...';
-            botMove();
-        } else {
-            gameMessage.textContent = 'Игра началась. Ваш ход!';
-        }
-    }
-
-    // Shuffle deck
-    function shuffleDeck() {
-        for (let i = deck.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [deck[i], deck[j]] = [deck[j], deck[i]];
-        }
-    }
-
-    // Deal cards
-    function dealCards() {
-        const attackerHand = currentTurn === 'player' ? playerHand : botHand;
-        const defenderHand = currentTurn === 'player' ? botHand : playerHand;
-
-        // Добираем карты атакующему
-        while (attackerHand.length < 6 && deck.length > 0) {
-            attackerHand.push(deck.pop());
-        }
-
-        // Затем добираем карты защитнику
-        while (defenderHand.length < 6 && deck.length > 0) {
-            defenderHand.push(deck.pop());
-        }
-
-        // Если колода пуста, добавляем козырную карту как последнюю
-        if (deck.length === 0 && isTrumpCardInDeck) {
-            deck.push(trumpCard);
-            isTrumpCardInDeck = false;
-        }
-    }
-
-    // Determine first turn based on lowest trump
-    function determineFirstTurn() {
-        let lowestPlayerTrump = null;
-        let lowestBotTrump = null;
-
-        playerHand.forEach(card => {
-            if (card.suit === trumpSuit) {
-                if (!lowestPlayerTrump || values.indexOf(card.value) < values.indexOf(lowestPlayerTrump.value)) {
-                    lowestPlayerTrump = card;
-                }
+            if (game.phase !== 'play') {
+                startGame();
+                return;
             }
+            if (key === 'ArrowLeft' || key === 'KeyA') moveLane(-1);
+            if (key === 'ArrowRight' || key === 'KeyD') moveLane(1);
+            if (key === 'Space' || key === 'KeyX') cycleColor();
         });
 
-        botHand.forEach(card => {
-            if (card.suit === trumpSuit) {
-                if (!lowestBotTrump || values.indexOf(card.value) < values.indexOf(lowestBotTrump.value)) {
-                    lowestBotTrump = card;
-                }
-            }
+        // ----- канвас: тап / клик (мобила: старт по клику) -----
+        cv.addEventListener('click', () => {
+            if (game.phase !== 'play') startGame();
         });
 
-        if (lowestPlayerTrump && lowestBotTrump) {
-            currentTurn = values.indexOf(lowestPlayerTrump.value) < values.indexOf(lowestBotTrump.value) ? 'player' : 'bot';
-        } else if (lowestPlayerTrump) {
-            currentTurn = 'player';
-        } else if (lowestBotTrump) {
-            currentTurn = 'bot';
-        } else {
-            currentTurn = 'player';
-        }
-    }
+        // ----- touchstart — точное управление по зонам (лево/право/центр) -----
+        cv.addEventListener('touchstart', (e) => {
+            e.preventDefault();    // блокируем скролл и зум
+            const touch = e.touches[0];
+            if (!touch) return;
 
-    // Update UI
-    function updateUI() {
-        balanceDisplay.textContent = balance;
-        currentBetDisplay.textContent = currentBet;
-        possibleWinDisplay.textContent = Math.floor(currentBet * difficultyMultiplier);
-
-        deckEl.innerHTML = `<i class="fas fa-crown"></i><span class="absolute bottom-1 right-1 text-xs">${deck.length}</span>`;
-
-        trumpCardEl.innerHTML = '';
-        if (trumpCard) {
-             const trumpElement = createCardElement(trumpCard, null, false);
-             trumpCardEl.appendChild(trumpElement);
-            trumpCardEl.appendChild(trumpElement);
-        } else if (trumpSuit) {
-            const suitElement = document.createElement('div');
-            suitElement.className = `card ${trumpSuit === '♥' || trumpSuit === '♦' ? 'red' : 'black'} rotate-90`;
-            suitElement.style.display = 'flex';
-            suitElement.style.alignItems = 'center';
-            suitElement.style.justifyContent = 'center';
-            suitElement.style.fontSize = '24px';
-            suitElement.textContent = trumpSuit;
-
-            // Добавляем угол с мастью и буквой "Т"
-            const corner = document.createElement('div');
-            corner.className = 'card-corner card-corner-top';
-            corner.innerHTML = `Т<br>${trumpSuit}`;
-            corner.style.color = trumpSuit === '♥' || trumpSuit === '♦' ? '#e74c3c' : '#2c3e50';
-            corner.style.fontSize = '10px';
-            corner.style.lineHeight = '1.2';
-            corner.style.textAlign = 'center';
-            corner.style.padding = '2px';
-            suitElement.appendChild(corner);
-
-            trumpCardEl.appendChild(suitElement);
-        }
-        discardPileEl.innerHTML = `<i class="fas fa-trash"></i><span class="absolute bottom-1 right-1 text-xs">${discardPile.length}</span>`;
-
-        playerCardsEl.innerHTML = '';
-        playerHand.forEach((card, index) => {
-            const cardEl = createCardElement(card, index, gameActive && currentTurn === 'player');
-            playerCardsEl.appendChild(cardEl);
-        });
-
-        botCardsEl.innerHTML = '';
-        botHand.forEach(() => {
-            const cardBack = document.createElement('div');
-            cardBack.className = 'card card-back';
-            cardBack.innerHTML = '<i class="fas fa-crown"></i>';
-            botCardsEl.appendChild(cardBack);
-        });
-
-        battleFieldEl.innerHTML = '';
-        battleField.forEach((pair, index) => {
-            const cardPair = document.createElement('div');
-            cardPair.className = 'battle-pair';
-
-            const attackCard = pair[0];
-            const attackCardEl = createCardElement(attackCard, index, false);
-            cardPair.appendChild(attackCardEl);
-
-            const defendCard = pair[1];
-            if (defendCard) {
-                const defendCardEl = createCardElement(defendCard, index, false);
-                cardPair.appendChild(defendCardEl);
-            } else {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'card-placeholder';
-                cardPair.appendChild(placeholder);
-            }
-
-            battleFieldEl.appendChild(cardPair);
-        });
-
-        updateActionButtons();
-
-        gameMessage.textContent = currentTurn === 'player'
-            ? (isDefending ? 'Отбивайтесь!' : 'Ваш ход!')
-            : 'Ход бота...';
-    }
-
-    // Create card element
-    function createCardElement(card, index, clickable) {
-        const cardEl = document.createElement('div');
-        cardEl.className = `card ${card.suit === '♥' || card.suit === '♦' ? 'red' : 'black'} ${['В', 'Д', 'К', 'Т'].includes(card.value) ? 'figure-card' : ''}`;
-
-        // Corner labels
-        const cornerDisplay = card.value;
-        const topCorner = document.createElement('div');
-        topCorner.className = 'card-corner card-corner-top';
-        topCorner.innerHTML = `${cornerDisplay}<br>${card.suit}`;
-
-        const bottomCorner = document.createElement('div');
-        bottomCorner.className = 'card-corner card-corner-bottom';
-        bottomCorner.innerHTML = `${cornerDisplay}<br>${card.suit}`;
-
-        // Center content
-        const center = document.createElement('div');
-        center.className = 'card-center';
-
-        const suitSymbol = document.createElement('div');
-        suitSymbol.className = 'card-suit-large';
-        suitSymbol.textContent = card.suit;
-        center.appendChild(suitSymbol);
-
-        // Background pattern
-        const pattern = document.createElement('div');
-        pattern.className = 'card-pattern';
-
-        cardEl.appendChild(pattern);
-        cardEl.appendChild(topCorner);
-        cardEl.appendChild(center);
-        cardEl.appendChild(bottomCorner);
-
-        if (clickable) {
-            cardEl.dataset.index = index;
-            cardEl.addEventListener('click', () => handleCardClick(index));
-        }
-
-        return cardEl;
-    }
-
-    // Update action buttons
-    function updateActionButtons() {
-        takeBtn.classList.add('hidden');
-        passBtn.classList.add('hidden');
-
-        if (currentTurn === 'player' && gameActive) {
-            if (isDefending && battleField.length > 0 && battleField.some(pair => !pair[1])) {
-                takeBtn.classList.remove('hidden');
-            } else if (!isDefending && battleField.length > 0 && battleField.every(pair => pair[1])) {
-                passBtn.classList.remove('hidden');
-            }
-        }
-    }
-
-    // Handle card click
-    function handleCardClick(index) {
-        if (!gameActive || currentTurn !== 'player') return;
-
-        const card = playerHand[index];
-
-        if (isDefending) {
-            const undefendedPair = battleField.find(pair => !pair[1]);
-            if (undefendedPair && canBeat(undefendedPair[0], card)) {
-                undefendedPair[1] = card;
-                playerHand.splice(index, 1);
-                isDefending = battleField.some(pair => !pair[1]);
-                currentTurn = isDefending ? 'player' : 'bot';
-                gameMessage.textContent = isDefending ? 'Отбивайтесь!' : 'Вы отбились. Ход бота.';
-                updateUI();
-                if (!isDefending) {
-                    botMove();
-                }
-            } else {
-                showNotification('Эта карта не может отбить атаку!');
-                updateUI();
-            }
-        } else {
-            // Проверяем ограничение на 6 карт в раунде
-            const totalCardsInRound = battleField.flat().filter(c => c).length;
-            if (totalCardsInRound >= 6) {
-                showNotification('Максимум 6 карт в одном раунде!');
+            if (game.phase !== 'play') {
+                startGame();
                 return;
             }
 
-            if (battleField.length < botHand.length && canAttack(card)) {
-                battleField.push([card, null]);
-                playerHand.splice(index, 1);
-                currentTurn = 'bot';
-                isDefending = true;
-                gameMessage.textContent = 'Бот защищается...';
-                updateUI();
-                botMove();
+            const rect = cv.getBoundingClientRect();
+            // вычисляем координату касания относительно канваса (масштабируем к IW)
+            const scaleX = IW / rect.width;
+            const canvasX = (touch.clientX - rect.left) * scaleX;
+
+            // зоны: левая треть = left, правая треть = right, центр = смена цвета
+            if (canvasX < IW / 3) {
+                moveLane(-1);
+            } else if (canvasX > IW * 2 / 3) {
+                moveLane(1);
             } else {
-                showNotification(battleField.length >= botHand.length
-                    ? 'Слишком много карт для атаки!'
-                    : 'Можно атаковать только картами того же достоинства!');
-                updateUI();
+                cycleColor();
+            }
+        }, { passive: false });
+
+        // предотвращаем контекстное меню / выделение
+        cv.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // ----- кнопки под канвасом (уже мобильные) -----
+        document.getElementById('bl').addEventListener('click', (e) => {
+            if (game.phase === 'play') moveLane(-1);
+            else startGame();
+        });
+
+        document.getElementById('br').addEventListener('click', (e) => {
+            if (game.phase === 'play') moveLane(1);
+            else startGame();
+        });
+
+        document.getElementById('bc').addEventListener('click', (e) => {
+            if (game.phase === 'play') cycleColor();
+            else startGame();
+        });
+
+        // ----- спавн препятствий -----
+        function spawnObstacle() {
+            const lane = Math.floor(Math.random() * LANES);
+            const color = Math.floor(Math.random() * COLS.length);
+            game.obstacles.push({
+                x: LANE_X(lane),
+                y: -42,
+                lane,
+                color,
+                w: 52,            // чуть шире для видимости
+                h: 40,
+                phased: false,
+                hit: false,
+                phasedAlpha: 1
+            });
+        }
+
+        // ----- частицы (эффект попадания) -----
+        function spawnParticles(px, py, colorHex, count) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2.5 + Math.random() * 5;
+                game.particles.push({
+                    x: px, y: py,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    color: colorHex,
+                    life: 36 + Math.random() * 24,
+                    maxLife: 60,
+                    radius: 2.5 + Math.random() * 4
+                });
             }
         }
-    }
 
-    // Check if card can be used for attack
-    function canAttack(card) {
-        if (battleField.length === 0) return true;
-        return battleField.some(pair => pair[0].value === card.value || (pair[1] && pair[1].value === card.value));
-    }
+        // ----- обновление игровой логики -----
+        function update() {
+            if (game.phase !== 'play') return;
 
-    // Improved card comparison logic
-    function canBeat(attackCard, defendCard) {
-        if (attackCard.suit === trumpSuit && defendCard.suit !== trumpSuit) {
-            return false;
-        }
-        if (defendCard.suit === trumpSuit && attackCard.suit !== trumpSuit) {
-            return true;
-        }
-        if (attackCard.suit === defendCard.suit) {
-            return values.indexOf(defendCard.value) > values.indexOf(attackCard.value);
-        }
-        if (attackCard.suit === trumpSuit && defendCard.suit === trumpSuit) {
-            return values.indexOf(defendCard.value) > values.indexOf(attackCard.value);
-        }
-        return false;
-    }
+            game.frame++;
+            game.score++;
 
-    // Handle take button click
-    function handleTake() {
-        if (!gameActive || currentTurn !== 'player' || !isDefending) return;
-
-        for (let pair of battleField) {
-            playerHand.push(pair[0]);
-            if (pair[1]) playerHand.push(pair[1]);
-        }
-
-        battleField = [];
-        currentTurn = 'bot';
-        isDefending = false;
-
-        dealCards();
-        updateUI();
-        botMove();
-    }
-
-    // Handle pass button click
-    function handlePass() {
-        if (!gameActive || currentTurn !== 'player' || isDefending || !battleField.every(pair => pair[1])) return;
-
-        for (let pair of battleField) {
-            discardPile.push(pair[0]);
-            if (pair[1]) discardPile.push(pair[1]);
-        }
-
-        battleField = [];
-        currentTurn = 'bot';
-        isDefending = false;
-
-        showPassNotification();
-        dealCards();
-        updateUI();
-        botMove();
-    }
-
-    // Bot move logic
-    function botMove() {
-        if (!gameActive) return;
-
-        botThinkingEl.classList.remove('hidden');
-
-        botTimeout = setTimeout(() => {
-            botThinkingEl.classList.add('hidden');
-
-            if (currentTurn === 'bot') {
-                if (battleField.some(pair => !pair[1])) {
-                    botDefend();
-                } else {
-                    botAttack();
-                }
+            // постепенное усложнение
+            if (game.frame % 280 === 0) {
+                game.speed += 0.18;
+                game.spawnInterval = Math.max(52, game.spawnInterval - 3);
             }
 
-            updateUI();
-        }, 1000 + Math.random() * 1000);
-    }
+            // плавное движение игрока к центру дорожки
+            const targetX = LANE_X(game.pLane);
+            game.pX += (targetX - game.pX) * 0.18;
 
-    // Enhanced bot defend logic
-    function botDefend() {
-        let allDefended = true;
+            // спавн
+            game.spawnTimer++;
+            if (game.spawnTimer >= game.spawnInterval) {
+                spawnObstacle();
+                game.spawnTimer = 0;
+            }
 
-        for (let i = 0; i < battleField.length; i++) {
-            if (!battleField[i][1]) {
-                const attackCard = battleField[i][0];
-                let possibleDefends = botHand.filter(card => canBeat(attackCard, card));
+            // flash затухание
+            game.flash = Math.max(0, game.flash - 1);
 
-                // На легком уровне бот иногда не отбивается
-                if (difficultyLevel === 'easy' && Math.random() < 0.3) {
-                    allDefended = false;
-                    continue;
+            // обновление препятствий и коллизии
+            for (const obs of game.obstacles) {
+                obs.y += game.speed;
+                if (obs.phased) {
+                    obs.phasedAlpha = Math.max(0.12, obs.phasedAlpha - 0.035);
                 }
 
-                // На среднем уровне бот старается не тратить козыри без необходимости
-                if (difficultyLevel === 'medium' && Math.random() < 0.1) {
-                    const trumpCount = botHand.filter(c => c.suit === trumpSuit).length;
-                    if (trumpCount < 2) {
-                        allDefended = false;
-                        continue;
-                    }
-                }
+                // коллизия (учитываем радиус игрока и размер блока)
+                const dx = Math.abs(game.pX - obs.x);
+                const dy = Math.abs(PLAYER_Y - obs.y);
+                const collisionDistX = PLAYER_RADIUS + obs.w / 2 - 4;
+                const collisionDistY = PLAYER_RADIUS + obs.h / 2 - 4;
 
-                if (possibleDefends.length > 0) {
-                    let defendCard;
-
-                    // Сортируем возможные карты для защиты
-                    possibleDefends.sort((a, b) => {
-                        // Сначала не козыри
-                        if (a.suit !== trumpSuit && b.suit === trumpSuit) return -1;
-                        if (b.suit !== trumpSuit && a.suit === trumpSuit) return 1;
-                        // Затем по возрастанию значения
-                        return values.indexOf(a.value) - values.indexOf(b.value);
-                    });
-
-                    if (difficultyLevel === 'easy') {
-                        // На легком уровне выбираем случайную карту из возможных
-                        defendCard = possibleDefends[0];
-                    } else if (difficultyLevel === 'medium') {
-                        // На среднем уровне выбираем самую слабую подходящую карту
-                        defendCard = possibleDefends[0];
+                if (dx < collisionDistX && dy < collisionDistY) {
+                    if (game.pColor === obs.color) {
+                        if (!obs.phased) {
+                            obs.phased = true;
+                            game.score += 600;
+                            game.flash = 16;
+                            game.flashColor = COLS[game.pColor];
+                            spawnParticles(game.pX, PLAYER_Y, COLS[game.pColor], 20);
+                        }
                     } else {
-                        // На сложном уровне анализируем ситуацию
-                        const nonTrumps = possibleDefends.filter(c => c.suit !== trumpSuit);
-                        if (nonTrumps.length > 0) {
-                            defendCard = nonTrumps[0];
-                        } else {
-                            defendCard = possibleDefends[0];
+                        if (!obs.hit && !obs.phased) {
+                            obs.hit = true;
+                            game.lives--;
+                            game.flash = 14;
+                            game.flashColor = '#E24B4A';
+                            spawnParticles(game.pX, PLAYER_Y, '#b0b0c0', 22);
+                            if (game.lives <= 0) {
+                                game.hiScore = Math.max(game.hiScore, game.score);
+                                game.phase = 'dead';
+                            }
                         }
                     }
-
-                    const defendIndex = botHand.findIndex(card =>
-                        card.suit === defendCard.suit && card.value === defendCard.value
-                    );
-
-                    battleField[i][1] = botHand.splice(defendIndex, 1)[0];
-                } else {
-                    allDefended = false;
                 }
             }
-        }
 
-        if (allDefended) {
-            currentTurn = 'player';
-            isDefending = false;
-            gameMessage.textContent = 'Бот отбился. Ваш ход.';
-            updateUI();
-        } else {
-            for (let pair of battleField) {
-                botHand.push(pair[0]);
-                if (pair[1]) botHand.push(pair[1]);
+            // удаление ушедших препятствий
+            game.obstacles = game.obstacles.filter(o => o.y - o.h / 2 < IH + 30);
+
+            // частицы
+            for (const p of game.particles) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.92;
+                p.vy *= 0.92;
+                p.life--;
             }
-            battleField = [];
-            currentTurn = 'player';
-            isDefending = false;
-            gameMessage.textContent = 'Бот взял карты. Ваш ход.';
-            showNotification('Бот забирает карты');
-
-            dealCards();
-            updateUI();
-            checkGameEnd();
-        }
-    }
-
-    // Enhanced bot attack logic
-    function botAttack() {
-        // На сложном уровне запоминаем карты игрока
-        if (difficultyLevel === 'hard' && battleField.length > 0) {
-            battleField.forEach(pair => {
-                if (!knownPlayerCards.some(c => c.suit === pair[0].suit && c.value === pair[0].value)) {
-                    knownPlayerCards.push({...pair[0]});
-                }
-                if (pair[1] && !knownPlayerCards.some(c => c.suit === pair[1].suit && c.value === pair[1].value)) {
-                    knownPlayerCards.push({...pair[1]});
-                }
-            });
+            game.particles = game.particles.filter(p => p.life > 0);
         }
 
-        // Сортируем карты бота в зависимости от уровня сложности
-        botHand.sort((a, b) => {
-            if (a.suit === trumpSuit && b.suit !== trumpSuit) return 1;
-            if (b.suit === trumpSuit && a.suit !== trumpSuit) return -1;
-            if (difficultyLevel !== 'hard') {
-                return values.indexOf(a.value) - values.indexOf(b.value);
+        // ----- рисование (адаптировано под мобилу: крупнее шрифты, жирнее) -----
+        function roundedRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.arcTo(x + w, y, x + w, y + r, r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+            ctx.lineTo(x + r, y + h);
+            ctx.arcTo(x, y + h, x, y + h - r, r);
+            ctx.lineTo(x, y + r);
+            ctx.arcTo(x, y, x + r, y, r);
+            ctx.closePath();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, IW, IH);
+            
+            // фон
+            ctx.fillStyle = '#f8f8fc';
+            ctx.fillRect(0, 0, IW, IH);
+
+            // разделители дорожек
+            for (let i = 1; i < LANES; i++) {
+                ctx.strokeStyle = '#d4d4e8';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([7, 8]);
+                ctx.beginPath();
+                ctx.moveTo(LANE_WIDTH * i, 0);
+                ctx.lineTo(LANE_WIDTH * i, IH);
+                ctx.stroke();
             }
-            return a.suit === trumpSuit
-                ? values.indexOf(a.value) - values.indexOf(b.value)
-                : values.indexOf(b.value) - values.indexOf(a.value);
-        });
+            ctx.setLineDash([]);
 
-        if (botHand.length === 0) {
-            checkGameEnd();
-            return;
-        }
+            // лёгкая тонировка дорожек
+            for (let i = 0; i < LANES; i++) {
+                ctx.fillStyle = CFILL[i] + '60';
+                ctx.fillRect(LANE_WIDTH * i, 0, LANE_WIDTH, IH);
+            }
 
-        if (battleField.length === 0) {
-            let attackCard;
+            // названия цветов над дорожками (в игре)
+            if (game.phase === 'play') {
+                for (let i = 0; i < LANES; i++) {
+                    ctx.fillStyle = COLS[i] + 'dd';
+                    ctx.font = 'bold 11px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(CNAMES[i], LANE_X(i), 22);
+                }
+            }
 
-            if (difficultyLevel === 'easy') {
-                // На легком уровне выбираем случайную карту
-                attackCard = botHand[Math.floor(Math.random() * botHand.length)];
-            } else if (difficultyLevel === 'medium') {
-                // На среднем уровне выбираем самую слабую карту
-                botHand.sort((a, b) => {
-                    if (a.suit === trumpSuit && b.suit !== trumpSuit) return 1;
-                    if (b.suit === trumpSuit && a.suit !== trumpSuit) return -1;
-                    return values.indexOf(a.value) - values.indexOf(b.value);
+            // вспышка (flash)
+            if (game.flash > 0) {
+                const alpha = Math.min(0.35, (game.flash / 18) * 0.5);
+                ctx.fillStyle = game.flashColor || '#ffffff';
+                ctx.globalAlpha = alpha;
+                ctx.fillRect(0, 0, IW, IH);
+                ctx.globalAlpha = 1.0;
+            }
+
+            // частицы
+            for (const p of game.particles) {
+                ctx.globalAlpha = (p.life / p.maxLife) * 0.85;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1.0;
+
+            // препятствия
+            for (const obs of game.obstacles) {
+                const alpha = obs.phased ? obs.phasedAlpha : 1;
+                ctx.globalAlpha = alpha;
+                
+                // тень
+                ctx.fillStyle = COLS[obs.color] + '30';
+                roundedRect(ctx, obs.x - obs.w/2 + 3, obs.y - obs.h/2 + 4, obs.w, obs.h, 10);
+                ctx.fill();
+                
+                // основной блок
+                ctx.fillStyle = obs.phased ? COLS[obs.color] + '55' : COLS[obs.color];
+                roundedRect(ctx, obs.x - obs.w/2, obs.y - obs.h/2, obs.w, obs.h, 10);
+                ctx.fill();
+                
+                if (!obs.phased) {
+                    ctx.strokeStyle = '#ffffffaa';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+                }
+                
+                // текст внутри блока
+                ctx.globalAlpha = obs.phased ? 0.3 : 1;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = 'bold 11px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(CNAMES[obs.color], obs.x, obs.y + 5);
+            }
+            ctx.globalAlpha = 1.0;
+
+            // ----- игрок (крупнее) -----
+            if (game.phase === 'play') {
+                // аура
+                ctx.fillStyle = COLS[game.pColor] + '30';
+                ctx.beginPath();
+                ctx.arc(game.pX, PLAYER_Y, PLAYER_RADIUS + 14, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // основной круг
+                ctx.fillStyle = COLS[game.pColor];
+                ctx.beginPath();
+                ctx.arc(game.pX, PLAYER_Y, PLAYER_RADIUS, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#ffffffee';
+                ctx.lineWidth = 3.2;
+                ctx.beginPath();
+                ctx.arc(game.pX, PLAYER_Y, PLAYER_RADIUS, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // текст цвета
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = 'bold 11px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(CNAMES[game.pColor], game.pX, PLAYER_Y + 5);
+            }
+
+            // ----- HUD (увеличенный, читаемый) -----
+            if (game.phase === 'play' || game.phase === 'dead') {
+                // жизни (сердечки / точки)
+                for (let i = 0; i < 3; i++) {
+                    ctx.fillStyle = i < game.lives ? '#E24B4A' : '#c0c0d0';
+                    ctx.beginPath();
+                    ctx.arc(20 + i * 26, IH - 22, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff90';
+                    ctx.lineWidth = 1.8;
+                    ctx.stroke();
+                }
+                
+                // счёт
+                ctx.fillStyle = '#1a1a2e';
+                ctx.font = 'bold 18px monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText(Math.floor(game.score / 10), IW - 16, IH - 14);
+                
+                // скорость
+                ctx.fillStyle = '#6a6a8c';
+                ctx.font = '11px monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText('SPD ' + game.speed.toFixed(1), IW - 16, 22);
+            }
+
+            // ----- стартовый экран (адаптирован под мобилу) -----
+            if (game.phase === 'start') {
+                ctx.fillStyle = 'rgba(248, 248, 252, 0.94)';
+                ctx.fillRect(0, 0, IW, IH);
+                
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#1e1e30';
+                ctx.font = 'bold 24px monospace';
+                ctx.fillText('WAVELENGTH', IW/2, IH/2 - 120);
+                
+                ctx.fillStyle = '#4e4e70';
+                ctx.font = '12px monospace';
+                ctx.fillText('блоки падают · совмести цвет', IW/2, IH/2 - 88);
+                ctx.fillText('пройди сквозь · не ошибись', IW/2, IH/2 - 68);
+                
+                // демо цветов
+                const demo = [['#E24B4A', 'RED'], ['#4aaa5a', 'GRN'], ['#378ADD', 'BLU']];
+                demo.forEach(([col, label], i) => {
+                    const x = IW/2 - 70 + i * 70;
+                    ctx.fillStyle = col;
+                    ctx.beginPath();
+                    ctx.arc(x, IH/2, 18, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 10px monospace';
+                    ctx.fillText(label, x, IH/2 + 6);
                 });
-                attackCard = botHand[0];
-            } else {
-                // На сложном уровне выбираем карту, которой у игрока, скорее всего, нет
-                const nonTrumps = botHand.filter(card => card.suit !== trumpSuit);
-                if (nonTrumps.length > 0) {
-                    // Ищем карту, которой нет у игрока (по нашим данным)
-                    const unknownCards = nonTrumps.filter(card =>
-                        !knownPlayerCards.some(c => c.value === card.value)
-                    );
-                    attackCard = unknownCards.length > 0 ? unknownCards[0] : nonTrumps[0];
-                } else {
-                    botHand.sort((a, b) => values.indexOf(a.value) - values.indexOf(b.value));
-                    attackCard = botHand[0];
-                }
+                
+                ctx.fillStyle = '#1e1e30';
+                ctx.font = '12px monospace';
+                ctx.fillText('←  →  смена дорожки', IW/2, IH/2 + 52);
+                ctx.fillText('центр экрана = цвет', IW/2, IH/2 + 72);
+                
+                // большая кнопка "играть"
+                ctx.fillStyle = '#378ADD';
+                roundedRect(ctx, IW/2 - 80, IH/2 + 104, 160, 48, 28);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 16px monospace';
+                ctx.fillText('▶  ИГРАТЬ', IW/2, IH/2 + 133);
             }
 
-            if (battleField.length < playerHand.length) {
-                const attackIndex = botHand.findIndex(card =>
-                    card.suit === attackCard.suit && card.value === attackCard.value
-                );
-                battleField.push([botHand.splice(attackIndex, 1)[0], null]);
-                currentTurn = 'player';
-                isDefending = true;
-                gameMessage.textContent = 'Бот атаковал. Отбивайтесь!';
-                updateUI();
-            } else if (battleField.every(pair => pair[1])) {
-                discardBattleField();
-                currentTurn = 'player';
-                isDefending = false;
-                gameMessage.textContent = 'Бот завершил ход. Ваш ход.';
-                showNotification('Бито!');
-                dealCards();
-                updateUI();
-                checkGameEnd();
+            // ----- экран проигрыша -----
+            if (game.phase === 'dead') {
+                ctx.fillStyle = 'rgba(248, 248, 252, 0.92)';
+                ctx.fillRect(0, 0, IW, IH);
+                
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#E24B4A';
+                ctx.font = 'bold 20px monospace';
+                ctx.fillText('СИГНАЛ ПОТЕРЯН', IW/2, IH/2 - 70);
+                
+                ctx.fillStyle = '#1a1a2e';
+                ctx.font = 'bold 24px monospace';
+                ctx.fillText('СЧЁТ  ' + Math.floor(game.score / 10), IW/2, IH/2 - 30);
+                
+                ctx.fillStyle = '#7a7aa0';
+                ctx.font = '14px monospace';
+                ctx.fillText('ЛУЧШИЙ  ' + Math.floor(game.hiScore / 10), IW/2, IH/2 + 2);
+                
+                ctx.fillStyle = '#378ADD';
+                roundedRect(ctx, IW/2 - 80, IH/2 + 42, 160, 48, 28);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 16px monospace';
+                ctx.fillText('▶  ЕЩЁ РАЗ', IW/2, IH/2 + 71);
             }
-        } else {
-            const tableValues = battleField.flat().filter(card => card).map(card => card.value);
-            let possibleAttacks = botHand.filter(card => tableValues.includes(card.value));
+            
+            ctx.textAlign = 'left';
+        }
 
-            // Проверяем ограничение на 6 карт в раунде
-            const totalCardsInRound = battleField.flat().filter(c => c).length;
-            if (totalCardsInRound >= 6) {
-                discardBattleField();
-                currentTurn = 'player';
-                isDefending = false;
-                gameMessage.textContent = 'Бот завершил ход. Ваш ход.';
-                showNotification('Бито!');
-                dealCards();
-                updateUI();
-                checkGameEnd();
-                return;
+        // ----- игровой цикл -----
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+
+        // дополнительно: предотвращаем двойной тап зум на всём документе
+        document.addEventListener('touchstart', (e) => {
+            if (e.target === cv || e.target.closest('button')) {
+                e.preventDefault();
             }
+        }, { passive: false });
 
-            if (possibleAttacks.length > 0 && battleField.length < playerHand.length) {
-                let attackCard;
-
-                if (difficultyLevel === 'easy') {
-                    attackCard = possibleAttacks[Math.floor(Math.random() * possibleAttacks.length)];
-                } else if (difficultyLevel === 'medium') {
-                    possibleAttacks.sort((a, b) => {
-                        if (a.suit === trumpSuit && b.suit !== trumpSuit) return 1;
-                        if (b.suit === trumpSuit && a.suit !== trumpSuit) return -1;
-                        return values.indexOf(a.value) - values.indexOf(b.value);
-                    });
-                    attackCard = possibleAttacks[0];
-                } else {
-                    const nonTrumpAttacks = possibleAttacks.filter(card => card.suit !== trumpSuit);
-                    if (nonTrumpAttacks.length > 0) {
-                        nonTrumpAttacks.sort((a, b) => values.indexOf(b.value) - values.indexOf(a.value));
-                        attackCard = nonTrumpAttacks[0];
-                    } else {
-                        possibleAttacks.sort((a, b) => values.indexOf(a.value) - values.indexOf(b.value));
-                        attackCard = possibleAttacks[0];
-                    }
-                }
-
-                const attackIndex = botHand.findIndex(card =>
-                    card.suit === attackCard.suit && card.value === attackCard.value
-                );
-
-                battleField.push([botHand.splice(attackIndex, 1)[0], null]);
-                currentTurn = 'player';
-                isDefending = true;
-                gameMessage.textContent = 'Бот атаковал. Отбивайтесь!';
-                updateUI();
-
-                // На сложном уровне бот может добавить несколько карт за ход
-                if (difficultyLevel === 'hard' && possibleAttacks.length > 1 && battleField.length < playerHand.length) {
-                    possibleAttacks = botHand.filter(card => tableValues.includes(card.value));
-                    if (possibleAttacks.length > 0) {
-                        const extraAttackCard = possibleAttacks[0];
-                        const extraAttackIndex = botHand.findIndex(card =>
-                            card.suit === extraAttackCard.suit && card.value === extraAttackCard.value
-                        );
-                        battleField.push([botHand.splice(extraAttackIndex, 1)[0], null]);
-                        updateUI();
-                    }
-                }
-            } else {
-                discardBattleField();
-                currentTurn = 'player';
-                isDefending = false;
-                gameMessage.textContent = 'Бот завершил ход. Ваш ход.';
-                showNotification('Бито!');
-                dealCards();
-                updateUI();
-                checkGameEnd();
-            }
-        }
-    }
-
-    // Discard battle field cards
-    function discardBattleField() {
-        for (let pair of battleField) {
-            discardPile.push(pair[0]);
-            if (pair[1]) discardPile.push(pair[1]);
-        }
-        battleField = [];
-    }
-
-    // Check if game has ended
-    function checkGameEnd() {
-        if (deck.length === 0 && playerHand.length === 0 && botHand.length === 0) {
-            // Ничья - у обоих игроков одновременно закончились карты
-            gameActive = false;
-            endGame('draw');
-            return;
-        }
-
-        if (deck.length === 0 && playerHand.length === 0) {
-            gameActive = false;
-            endGame(true);
-            return;
-        }
-
-        if (deck.length === 0 && botHand.length === 0) {
-            gameActive = false;
-            endGame(false);
-            return;
-        }
-    }
-
-    // End game
-    function endGame(result) {
-        let win = 0;
-        if (result === true) {
-            win = Math.floor(currentBet * difficultyMultiplier);
-            balance += win;
-            winTitle.textContent = 'Победа!';
-            winMessage.textContent = `Вы выиграли ${win} DINO!`;
-            winAmount.textContent = win;
-            createWinAnimation();
-        } else if (result === false) {
-            balance -= currentBet;
-            winTitle.textContent = 'Поражение';
-            winMessage.textContent = `Вы проиграли ${currentBet} DINO`;
-            winAmount.textContent = currentBet;
-        } else {
-            // Ничья
-            winTitle.textContent = 'Ничья!';
-            winMessage.textContent = 'У обоих игроков закончились карты';
-            winAmount.textContent = '0';
-        }
-        saveBalance();
-        winPopup.style.display = 'block';
-        gameActive = false;
-        updateUI();
-    }
-
-    // Create win animation
-    function createWinAnimation() {
-        coinsAnimation.innerHTML = '';
-
-        for (let i = 0; i < 20; i++) {
-            const coin = document.createElement('div');
-            coin.className = 'coin';
-            coin.textContent = 'D';
-            const left = Math.random() * 100;
-            const delay = Math.random() * 2;
-            const duration = 2 + Math.random() * 2;
-            coin.style.left = `${left}%`;
-            coin.style.animation = `coin-fall ${duration}s ${delay}s linear`;
-            coinsAnimation.appendChild(coin);
-        }
-
-        for (let i = 0; i < 30; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            const left = 50 + (Math.random() - 0.5) * 20;
-            const top = 50 + (Math.random() - 0.5) * 20;
-            const dx = (Math.random() - 0.5) * 150;
-            const dy = (Math.random() - 0.5) * 150;
-            particle.style.left = `${left}%`;
-            particle.style.top = `${top}%`;
-            particle.style.setProperty('--dx', dx);
-            particle.style.setProperty('--dy', dy);
-            coinsAnimation.appendChild(particle);
-        }
-    }
-
-    // Save balance to localStorage
-    function saveBalance() {
-        localStorage.setItem('balance', balance);
-    }
-
-    // Load balance from localStorage
-    function loadBalance() {
-        const savedBalance = localStorage.getItem('balance');
-        balance = savedBalance !== null ? parseInt(savedBalance) : 10000;
-        updateUI();
-    }
-
-    // Daily bonus functions
-    function updateBonusTimer() {
-        const now = new Date().getTime();
-        const timeSinceLastBonus = now - lastBonusClaimTime;
-
-        if (timeSinceLastBonus >= BONUS_COOLDOWN) {
-            // Bonus is available
-            bonusTimerEl.textContent = "Бонус доступен!";
-            claimDailyBonusBtn.disabled = false;
-            claimDailyBonusBtn.classList.remove('bg-gray-500');
-            claimDailyBonusBtn.classList.add('gold-gradient');
-        } else {
-            // Calculate remaining time
-            const remainingTime = BONUS_COOLDOWN - timeSinceLastBonus;
-            const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-
-            bonusTimerEl.textContent = `Доступно через: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            claimDailyBonusBtn.disabled = true;
-            claimDailyBonusBtn.classList.add('bg-gray-500');
-            claimDailyBonusBtn.classList.remove('gold-gradient');
-        }
-    }
-
-    function claimDailyBonus() {
-        const now = new Date().getTime();
-
-        // Check if bonus is available
-        if (now - lastBonusClaimTime >= BONUS_COOLDOWN) {
-            balance += DAILY_BONUS_AMOUNT;
-            lastBonusClaimTime = now;
-            localStorage.setItem('lastBonusClaimTime', lastBonusClaimTime);
-            saveBalance();
-            updateUI();
-            updateBonusTimer();
-            showNotification(`Вы получили ${DAILY_BONUS_AMOUNT} DINO!`);
-        }
-    }
-
-    function initDailyBonus() {
-        lastBonusClaimTime = parseInt(localStorage.getItem('lastBonusClaimTime') || 0);
-        updateBonusTimer();
-        bonusTimerInterval = setInterval(updateBonusTimer, 1000);
-    }
-
-    // Initialize the game when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        loadBalance();
-        initDailyBonus();
-
-        // Event listeners
-        startGameBtn.addEventListener('click', () => {
-            currentBet = parseInt(betInput.value);
-            if (currentBet < 10 || currentBet > balance || isNaN(currentBet)) {
-                showNotification('Недопустимая ставка!');
-                return;
-            }
-            mainMenu.classList.remove('active-section');
-            gameScreen.classList.add('active-section');
-            initGame();
-        });
-
-        backToMenuBtn.addEventListener('click', backToMainMenu);
-
-        difficultyButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                difficultyButtons.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                difficultyMultiplier = parseFloat(btn.dataset.multiplier);
-                difficultyLevel = btn.dataset.level;
-                updateUI();
-            });
-        });
-
-        takeBtn.addEventListener('click', handleTake);
-        passBtn.addEventListener('click', handlePass);
-
-        winOk.addEventListener('click', () => {
-            winPopup.style.display = 'none';
-            backToMainMenu();
-        });
-
-        rulesBtn.addEventListener('click', () => {
-            rulesModal.classList.remove('hidden');
-        });
-
-        closeRulesBtn.addEventListener('click', () => {
-            rulesModal.classList.add('hidden');
-        });
-
-        confirmExitYes.addEventListener('click', () => {
-            confirmExitModal.classList.add('hidden');
-            saveBalance();
-            gameActive = false;
-            mainMenu.classList.add('active-section');
-            gameScreen.classList.remove('active-section');
-        });
-
-        confirmExitNo.addEventListener('click', () => {
-            confirmExitModal.classList.add('hidden');
-        });
-
-        dailyBonusBtn.addEventListener('click', () => {
-            dailyBonusModal.classList.remove('hidden');
-        });
-
-        claimDailyBonusBtn.addEventListener('click', claimDailyBonus);
-
-        closeDailyBonusBtn.addEventListener('click', () => {
-            dailyBonusModal.classList.add('hidden');
-        });
-    });
-        document.querySelector('.telegram-promo a').addEventListener('click', function() {
-    localStorage.setItem('telegramClicked', 'true');
-
-    // Активируем кнопку сразу
-    const claimBtn = document.getElementById('claim-telegram-bonus');
-    claimBtn.disabled = false;
-    claimBtn.classList.remove('bg-gray-600');
-    claimBtn.classList.add('green-gradient');
-    claimBtn.innerHTML = '<i class="fas fa-gift mr-2"></i> Забрать 100K DINO';
-});
-
-document.getElementById('claim-telegram-bonus').addEventListener('click', function() {
-    if (localStorage.getItem('telegramClicked') === 'true') {
-        balance += TELEGRAM_BONUS_AMOUNT;
-        saveBalance();
-        updateUI();
-        this.disabled = true;
-        this.innerHTML = '<i class="fas fa-check mr-2"></i> Бонус получен';
-        this.classList.remove('bg-gray-600');
-        this.classList.add('bg-gray-700');
-        localStorage.setItem('telegramBonusClaimed', 'true');
-        showNotification(`Вы получили ${TELEGRAM_BONUS_AMOUNT} DINO!`);
-    }
-});
-
-// В initDailyBonus добавьте проверку состояния:
-const telegramClicked = localStorage.getItem('telegramClicked') === 'true';
-const telegramBonusClaimed = localStorage.getItem('telegramBonusClaimed') === 'true';
-
-if (telegramClicked) {
-    const claimBtn = document.getElementById('claim-telegram-bonus');
-    claimBtn.disabled = false;
-    claimBtn.classList.remove('bg-gray-600');
-    claimBtn.classList.add('green-gradient');
-    claimBtn.innerHTML = '<i class="fas fa-gift mr-2"></i> Забрать 100K DINO';
-
-    if (telegramBonusClaimed) {
-        claimBtn.disabled = true;
-        claimBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Бонус получен';
-        claimBtn.classList.remove('green-gradient');
-        claimBtn.classList.add('bg-gray-700');
-    }
-}
+        // стартовый рендер
+        draw();
+    })();
 </script>
 </body>
 </html>
-
