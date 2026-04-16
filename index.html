@@ -1,592 +1,494 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WAVELENGTH · мобильная</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>WAVELENGTH</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            background: #0b0b12;  /* глубокий фон для контраста */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100dvh;
-            font-family: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
-            touch-action: pan-y;   
-            padding: 8px;
-        }
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: #0e0e18;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
 
-        #wrap {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            padding: 8px 0 12px;
-            width: 100%;
-            max-width: 420px;       /* комфортная ширина для мобилы */
-            margin: 0 auto;
-        }
+  #wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    gap: 0;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
 
-        #cv {
-            display: block;
-            width: 100%;
-            height: auto;
-            aspect-ratio: 320 / 520;
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            background: #f5f5fc;
-            box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-            touch-action: none;      /* полностью блокируем скролл на канвасе */
-            cursor: pointer;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+  #cv {
+    display: block;
+    border-radius: 18px;
+    touch-action: none;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
 
-        .btns {
-            display: flex;
-            gap: 12px;
-            width: 100%;
-            padding: 0 4px;
-        }
+  #btns {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    margin-top: 10px;
+    padding: 0 12px;
+  }
 
-        .btn {
-            flex: 1;
-            padding: 18px 0;          /* крупные кнопки — легко попасть */
-            font-size: 16px;
-            font-weight: 600;
-            font-family: inherit;
-            letter-spacing: 0.08em;
-            background: #1e1e2c;
-            border: 1px solid #3a3a5a;
-            border-radius: 44px;
-            color: #f0eef8;
-            box-shadow: 0 6px 0 #0f0f18, 0 4px 12px rgba(0,0,0,0.3);
-            cursor: pointer;
-            transition: all 0.08s ease;
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            text-transform: uppercase;
-            backdrop-filter: blur(4px);
-        }
+  .btn {
+    flex: 1;
+    padding: 0;
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.07);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    transition: background 0.08s, transform 0.08s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+    /* height set via JS */
+  }
 
-        .btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #0f0f18, 0 4px 10px rgba(0,0,0,0.3);
-            background: #2d2d44;
-            border-color: #5f5f8a;
-        }
+  .btn:active, .btn.pressed {
+    background: rgba(255,255,255,0.2);
+    transform: scale(0.96);
+  }
 
-        /* цветовые акценты для кнопок (опционально) */
-        #bc {
-            background: #2a2a40;
-            border-color: #6d6da0;
-            color: #e3e0ff;
-        }
-
-        /* на очень узких экранах чуть меньше кнопки */
-        @media (max-width: 380px) {
-            .btn {
-                padding: 16px 0;
-                font-size: 15px;
-            }
-        }
-    </style>
+  #bc {
+    background: rgba(55, 138, 221, 0.25);
+    border-color: rgba(55, 138, 221, 0.5);
+  }
+  #bc:active, #bc.pressed {
+    background: rgba(55, 138, 221, 0.5);
+  }
+</style>
 </head>
 <body>
 <div id="wrap">
-    <canvas id="cv"></canvas>
-    <div class="btns">
-        <button class="btn" id="bl">← LEFT</button>
-        <button class="btn" id="bc">◈ COLOR</button>
-        <button class="btn" id="br">RIGHT →</button>
-    </div>
+  <canvas id="cv"></canvas>
+  <div id="btns">
+    <button class="btn" id="bl">◀ ЛЕВО</button>
+    <button class="btn" id="bc">◈ ЦВЕТ</button>
+    <button class="btn" id="br">ПРАВО ▶</button>
+  </div>
 </div>
+
 <script>
-    (function(){
-        const cv = document.getElementById('cv');
-        const ctx = cv.getContext('2d');
+(function(){
+'use strict';
 
-        // ----- размеры (физический канвас 320x520, но через CSS растягивается) -----
-        const IW = 320, IH = 520;
-        cv.width = IW; cv.height = IH;
+// ─── Canvas + sizing ────────────────────────────────────────────────
+const cv  = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+const wrap = document.getElementById('wrap');
+const btns = document.getElementById('btns');
+const btnL = document.getElementById('bl');
+const btnC = document.getElementById('bc');
+const btnR = document.getElementById('br');
 
-        // ----- константы игры -----
-        const COLS = ['#E24B4A', '#4aaa5a', '#378ADD'];
-        const CNAMES = ['RED', 'GRN', 'BLU'];
-        const CFILL = ['#FDE8E8', '#E8F5EB', '#E8F1FD'];
-        const LANES = 3;
-        const LANE_WIDTH = IW / LANES;
-        const LANE_X = (lane) => LANE_WIDTH * lane + LANE_WIDTH / 2;
-        const PLAYER_Y = IH - 70;
-        const PLAYER_RADIUS = 18;      // увеличил для мобилы
+const IW = 320, IH = 520; // logical resolution
+let dpr = 1, scl = 1;
 
-        // ----- состояние игры -----
-        let hiScore = 0;
-        let game = createGame();
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  // available space
+  const safeT = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || 0) || 0;
+  const safeB = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sab') || 0) || 0;
+  const winW = window.innerWidth;
+  const winH = window.innerHeight;
 
-        function createGame() {
-            return {
-                phase: 'start',          // 'start', 'play', 'dead'
-                pLane: 1,
-                pColor: 0,
-                pX: LANE_X(1),
-                lives: 3,
-                score: 0,
-                speed: 2.4,
-                obstacles: [],
-                particles: [],
-                frame: 0,
-                spawnTimer: 0,
-                spawnInterval: 80,        // чуть реже на старте, чтобы комфортно
-                flash: 0,
-                flashColor: '',
-                hiScore: hiScore
-            };
+  // button row height: ~14% of screen, min 60px, max 90px
+  const btnH = Math.min(90, Math.max(60, Math.floor(winH * 0.13)));
+  const btnMT = 10;
+  btns.style.width = winW + 'px';
+  btns.style.paddingLeft = '12px';
+  btns.style.paddingRight = '12px';
+  [btnL, btnC, btnR].forEach(b => b.style.height = btnH + 'px');
+
+  // canvas area
+  const availH = winH - btnH - btnMT - 20;
+  const availW = winW - 24;
+  scl = Math.min(availW / IW, availH / IH);
+
+  const dispW = Math.floor(IW * scl);
+  const dispH = Math.floor(IH * scl);
+  cv.style.width  = dispW + 'px';
+  cv.style.height = dispH + 'px';
+  cv.width  = Math.round(dispW * dpr);
+  cv.height = Math.round(dispH * dpr);
+  ctx.setTransform(scl * dpr, 0, 0, scl * dpr, 0, 0);
+}
+
+resize();
+window.addEventListener('resize', resize);
+
+// ─── Game constants ──────────────────────────────────────────────────
+const COLS   = ['#E24B4A', '#4aaa5a', '#378ADD'];
+const CNAMES = ['RED', 'GRN', 'BLU'];
+const CFILL  = ['rgba(226,75,74,0.07)', 'rgba(74,170,90,0.07)', 'rgba(55,138,221,0.07)'];
+const NL = 3;
+const LW = IW / NL;
+const LX = l => LW * l + LW / 2;
+const PY = IH - 74;
+const PR = 17;
+
+let hi = 0;
+let g  = mk();
+
+function mk() {
+  return {
+    phase: 'start', pLane: 1, pColor: 0, pX: LX(1),
+    lives: 3, score: 0, spd: 2.4, obs: [], parts: [],
+    frame: 0, spwnT: 0, spwnI: 85, flash: 0, flashCol: '',
+    hiScore: hi, colorAnim: 0
+  };
+}
+
+function mvLane(d) {
+  if (g.phase !== 'play') return;
+  const prev = g.pLane;
+  g.pLane = Math.max(0, Math.min(NL - 1, g.pLane + d));
+}
+
+function cycClr() {
+  if (g.phase !== 'play') return;
+  g.pColor = (g.pColor + 1) % COLS.length;
+  g.colorAnim = 8;
+}
+
+function startG() {
+  hi = g.hiScore;
+  g = mk();
+  g.hiScore = hi;
+  g.phase = 'play';
+}
+
+// ─── Keyboard ────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (['ArrowLeft','ArrowRight','Space','KeyA','KeyD','KeyX'].includes(e.code)) e.preventDefault();
+  if (g.phase !== 'play') { startG(); return; }
+  if (e.code === 'ArrowLeft'  || e.code === 'KeyA') mvLane(-1);
+  if (e.code === 'ArrowRight' || e.code === 'KeyD') mvLane(1);
+  if (e.code === 'Space'      || e.code === 'KeyX') cycClr();
+});
+
+// ─── Touch on canvas ─────────────────────────────────────────────────
+cv.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (g.phase !== 'play') { startG(); return; }
+  const t = e.changedTouches[0];
+  const r = cv.getBoundingClientRect();
+  const tx = (t.clientX - r.left) / r.width * IW;
+  if      (tx < IW / 3)     mvLane(-1);
+  else if (tx > IW * 2 / 3) mvLane(1);
+  else                       cycClr();
+}, { passive: false });
+
+cv.addEventListener('click', () => { if (g.phase !== 'play') startG(); });
+
+// ─── Buttons — use touchstart to skip 300ms delay ────────────────────
+function addBtn(el, action) {
+  function go(e) {
+    e.preventDefault();
+    el.classList.add('pressed');
+    setTimeout(() => el.classList.remove('pressed'), 120);
+    if (g.phase !== 'play') startG();
+    else action();
+  }
+  el.addEventListener('touchstart', go, { passive: false });
+  el.addEventListener('click', go);   // fallback desktop
+}
+
+addBtn(btnL, () => mvLane(-1));
+addBtn(btnC, () => cycClr());
+addBtn(btnR, () => mvLane(1));
+
+// ─── Spawn ───────────────────────────────────────────────────────────
+function spwnObs() {
+  const lane  = Math.floor(Math.random() * NL);
+  const color = Math.floor(Math.random() * COLS.length);
+  g.obs.push({ x: LX(lane), y: -36, lane, color, w: 50, h: 38, phased: false, hit: false, phasedAlpha: 1 });
+}
+
+function spwnParts(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const s = 2 + Math.random() * 5;
+    g.parts.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s, color, life: 32+Math.random()*18, maxLife: 50, r: 2+Math.random()*4 });
+  }
+}
+
+// ─── Update ──────────────────────────────────────────────────────────
+function update() {
+  if (g.phase !== 'play') return;
+  g.frame++;
+  g.score++;
+  if (g.frame % 300 === 0) { g.spd += 0.2; g.spwnI = Math.max(45, g.spwnI - 3); }
+  g.pX += (LX(g.pLane) - g.pX) * 0.22;
+  g.spwnT++;
+  if (g.spwnT >= g.spwnI) { spwnObs(); g.spwnT = 0; }
+  g.flash    = Math.max(0, g.flash - 1);
+  g.colorAnim = Math.max(0, g.colorAnim - 1);
+
+  for (const o of g.obs) {
+    o.y += g.spd;
+    if (o.phased) o.phasedAlpha = Math.max(0.12, o.phasedAlpha - 0.045);
+    const dx = Math.abs(g.pX - o.x);
+    const dy = Math.abs(PY - o.y);
+    if (dx < PR + o.w/2 - 6 && dy < PR + o.h/2 - 6) {
+      if (g.pColor === o.color) {
+        if (!o.phased) {
+          o.phased = true;
+          g.score += 500;
+          g.flash = 14; g.flashCol = COLS[g.pColor];
+          spwnParts(g.pX, PY, COLS[g.pColor], 18);
         }
-
-        // ----- хелперы -----
-        function moveLane(delta) {
-            game.pLane = Math.max(0, Math.min(LANES - 1, game.pLane + delta));
+      } else {
+        if (!o.hit && !o.phased) {
+          o.hit = true;
+          g.lives--;
+          g.flash = 14; g.flashCol = '#E24B4A';
+          spwnParts(g.pX, PY, '#888', 18);
+          if (g.lives <= 0) { g.hiScore = Math.max(g.hiScore, g.score); g.phase = 'dead'; }
         }
+      }
+    }
+  }
+  g.obs   = g.obs.filter(o => o.y - o.h/2 < IH + 24);
+  for (const p of g.parts) { p.x += p.vx; p.y += p.vy; p.vx *= 0.92; p.vy *= 0.92; p.life--; }
+  g.parts = g.parts.filter(p => p.life > 0);
+}
 
-        function cycleColor() {
-            game.pColor = (game.pColor + 1) % COLS.length;
-        }
+// ─── Draw helpers ─────────────────────────────────────────────────────
+function rr(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.arcTo(x+w, y, x+w, y+r, r);
+  ctx.lineTo(x+w, y+h-r); ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
+  ctx.lineTo(x+r, y+h); ctx.arcTo(x, y+h, x, y+h-r, r);
+  ctx.lineTo(x, y+r); ctx.arcTo(x, y, x+r, y, r);
+  ctx.closePath();
+}
 
-        function startGame() {
-            hiScore = game.hiScore;
-            game = createGame();
-            game.hiScore = hiScore;
-            game.phase = 'play';
-        }
+// ─── Draw ─────────────────────────────────────────────────────────────
+function draw() {
+  // BG
+  ctx.fillStyle = '#10101e';
+  ctx.fillRect(0, 0, IW, IH);
 
-        // ----- обработка клавиатуры (для дебага / внешней клавы) -----
-        document.addEventListener('keydown', (e) => {
-            const key = e.code;
-            if (['ArrowLeft', 'ArrowRight', 'Space', 'KeyA', 'KeyD', 'KeyX'].includes(key)) {
-                e.preventDefault();
-            }
-            if (game.phase !== 'play') {
-                startGame();
-                return;
-            }
-            if (key === 'ArrowLeft' || key === 'KeyA') moveLane(-1);
-            if (key === 'ArrowRight' || key === 'KeyD') moveLane(1);
-            if (key === 'Space' || key === 'KeyX') cycleColor();
-        });
+  // Lane tints
+  for (let i = 0; i < NL; i++) {
+    ctx.fillStyle = CFILL[i];
+    ctx.fillRect(LW*i, 0, LW, IH);
+  }
 
-        // ----- канвас: тап / клик (мобила: старт по клику) -----
-        cv.addEventListener('click', () => {
-            if (game.phase !== 'play') startGame();
-        });
+  // Lane dividers
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([6, 8]);
+  for (let i = 1; i < NL; i++) {
+    ctx.beginPath(); ctx.moveTo(LW*i, 0); ctx.lineTo(LW*i, IH); ctx.stroke();
+  }
+  ctx.setLineDash([]);
 
-        // ----- touchstart — точное управление по зонам (лево/право/центр) -----
-        cv.addEventListener('touchstart', (e) => {
-            e.preventDefault();    // блокируем скролл и зум
-            const touch = e.touches[0];
-            if (!touch) return;
+  // Lane color labels top
+  if (g.phase === 'play') {
+    for (let i = 0; i < NL; i++) {
+      ctx.fillStyle = COLS[i] + 'cc';
+      ctx.font = 'bold 9px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(CNAMES[i], LX(i), 18);
+    }
+  }
 
-            if (game.phase !== 'play') {
-                startGame();
-                return;
-            }
+  // Flash overlay
+  if (g.flash > 0) {
+    const alpha = Math.floor((g.flash / 14) * 50).toString(16).padStart(2, '0');
+    ctx.fillStyle = (g.flashCol || '#ffffff') + alpha;
+    ctx.fillRect(0, 0, IW, IH);
+  }
 
-            const rect = cv.getBoundingClientRect();
-            // вычисляем координату касания относительно канваса (масштабируем к IW)
-            const scaleX = IW / rect.width;
-            const canvasX = (touch.clientX - rect.left) * scaleX;
+  // Particles
+  for (const p of g.parts) {
+    ctx.globalAlpha = (p.life / p.maxLife) * 0.85;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
 
-            // зоны: левая треть = left, правая треть = right, центр = смена цвета
-            if (canvasX < IW / 3) {
-                moveLane(-1);
-            } else if (canvasX > IW * 2 / 3) {
-                moveLane(1);
-            } else {
-                cycleColor();
-            }
-        }, { passive: false });
+  // Obstacles
+  for (const o of g.obs) {
+    const a = o.phased ? o.phasedAlpha : 1;
+    ctx.globalAlpha = a;
+    // shadow
+    ctx.fillStyle = COLS[o.color] + '20';
+    rr(o.x-o.w/2+2, o.y-o.h/2+4, o.w, o.h, 9);
+    ctx.fill();
+    // block
+    ctx.fillStyle = o.phased ? COLS[o.color] + '33' : COLS[o.color];
+    rr(o.x-o.w/2, o.y-o.h/2, o.w, o.h, 9);
+    ctx.fill();
+    if (!o.phased) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+    ctx.globalAlpha = o.phased ? 0.2 : 1;
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(CNAMES[o.color], o.x, o.y + 4);
+  }
+  ctx.globalAlpha = 1;
 
-        // предотвращаем контекстное меню / выделение
-        cv.addEventListener('contextmenu', (e) => e.preventDefault());
+  // Player
+  if (g.phase === 'play') {
+    const col = COLS[g.pColor];
+    // outer aura (pulse on color change)
+    const auraR = PR + 14 + (g.colorAnim > 0 ? g.colorAnim * 1.2 : 0);
+    ctx.fillStyle = col + '20';
+    ctx.beginPath(); ctx.arc(g.pX, PY, auraR, 0, Math.PI*2); ctx.fill();
+    // inner glow
+    ctx.fillStyle = col + '40';
+    ctx.beginPath(); ctx.arc(g.pX, PY, PR + 6, 0, Math.PI*2); ctx.fill();
+    // player circle
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(g.pX, PY, PR, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(g.pX, PY, PR, 0, Math.PI*2); ctx.stroke();
+    // label
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 9px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(CNAMES[g.pColor], g.pX, PY + 3.5);
+  }
 
-        // ----- кнопки под канвасом (уже мобильные) -----
-        document.getElementById('bl').addEventListener('click', (e) => {
-            if (game.phase === 'play') moveLane(-1);
-            else startGame();
-        });
+  // HUD bottom bar
+  if (g.phase === 'play' || g.phase === 'dead') {
+    // lives
+    for (let i = 0; i < 3; i++) {
+      ctx.fillStyle = i < g.lives ? '#E24B4A' : '#333355';
+      ctx.beginPath(); ctx.arc(18 + i*22, IH - 18, 7, 0, Math.PI*2); ctx.fill();
+      if (i < g.lives) {
+        ctx.fillStyle = 'rgba(255,100,100,0.4)';
+        ctx.beginPath(); ctx.arc(18 + i*22, IH - 18, 10, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    // score
+    ctx.fillStyle = '#e0e0ff';
+    ctx.font = 'bold 15px "Courier New", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.floor(g.score / 10), IW - 12, IH - 12);
+    // speed
+    ctx.fillStyle = '#555588';
+    ctx.font = '9px "Courier New", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('SPD ' + g.spd.toFixed(1), IW - 12, 16);
+  }
 
-        document.getElementById('br').addEventListener('click', (e) => {
-            if (game.phase === 'play') moveLane(1);
-            else startGame();
-        });
+  // ── START screen ──
+  if (g.phase === 'start') {
+    ctx.fillStyle = 'rgba(14,14,28,0.94)';
+    ctx.fillRect(0, 0, IW, IH);
+    ctx.textAlign = 'center';
 
-        document.getElementById('bc').addEventListener('click', (e) => {
-            if (game.phase === 'play') cycleColor();
-            else startGame();
-        });
+    ctx.fillStyle = '#378ADD';
+    ctx.font = 'bold 28px "Courier New", monospace';
+    ctx.fillText('WAVELENGTH', IW/2, IH/2 - 120);
 
-        // ----- спавн препятствий -----
-        function spawnObstacle() {
-            const lane = Math.floor(Math.random() * LANES);
-            const color = Math.floor(Math.random() * COLS.length);
-            game.obstacles.push({
-                x: LANE_X(lane),
-                y: -42,
-                lane,
-                color,
-                w: 52,            // чуть шире для видимости
-                h: 40,
-                phased: false,
-                hit: false,
-                phasedAlpha: 1
-            });
-        }
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '10px "Courier New", monospace';
+    ctx.fillText('блоки падают сверху', IW/2, IH/2 - 90);
+    ctx.fillText('совпади по цвету — пройди насквозь', IW/2, IH/2 - 72);
+    ctx.fillText('не тот цвет — теряешь жизнь', IW/2, IH/2 - 54);
 
-        // ----- частицы (эффект попадания) -----
-        function spawnParticles(px, py, colorHex, count) {
-            for (let i = 0; i < count; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = 2.5 + Math.random() * 5;
-                game.particles.push({
-                    x: px, y: py,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    color: colorHex,
-                    life: 36 + Math.random() * 24,
-                    maxLife: 60,
-                    radius: 2.5 + Math.random() * 4
-                });
-            }
-        }
+    // color demo
+    [['#E24B4A','RED'],['#4aaa5a','GRN'],['#378ADD','BLU']].forEach(([c,l],i) => {
+      const x = IW/2 - 64 + i*64;
+      ctx.fillStyle = c + '33';
+      ctx.beginPath(); ctx.arc(x, IH/2+8, 20, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = c;
+      ctx.beginPath(); ctx.arc(x, IH/2+8, 16, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 9px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(l, x, IH/2+12);
+    });
 
-        // ----- обновление игровой логики -----
-        function update() {
-            if (game.phase !== 'play') return;
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.font = '10px "Courier New", monospace';
+    ctx.fillText('◀ ▶  дорожка   |   ◈  цвет', IW/2, IH/2 + 60);
 
-            game.frame++;
-            game.score++;
+    // play button
+    ctx.fillStyle = '#378ADD';
+    rr(IW/2-70, IH/2+90, 140, 46, 12);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(100,180,255,0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 15px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('▶  ИГРАТЬ', IW/2, IH/2 + 119);
+  }
 
-            // постепенное усложнение
-            if (game.frame % 280 === 0) {
-                game.speed += 0.18;
-                game.spawnInterval = Math.max(52, game.spawnInterval - 3);
-            }
+  // ── DEAD screen ──
+  if (g.phase === 'dead') {
+    ctx.fillStyle = 'rgba(14,14,28,0.91)';
+    ctx.fillRect(0, 0, IW, IH);
+    ctx.textAlign = 'center';
 
-            // плавное движение игрока к центру дорожки
-            const targetX = LANE_X(game.pLane);
-            game.pX += (targetX - game.pX) * 0.18;
+    ctx.fillStyle = '#E24B4A';
+    ctx.font = 'bold 20px "Courier New", monospace';
+    ctx.fillText('СИГНАЛ ПОТЕРЯН', IW/2, IH/2 - 70);
 
-            // спавн
-            game.spawnTimer++;
-            if (game.spawnTimer >= game.spawnInterval) {
-                spawnObstacle();
-                game.spawnTimer = 0;
-            }
+    ctx.fillStyle = '#e0e0ff';
+    ctx.font = 'bold 22px "Courier New", monospace';
+    ctx.fillText('СЧЁТ  ' + Math.floor(g.score/10), IW/2, IH/2 - 28);
 
-            // flash затухание
-            game.flash = Math.max(0, game.flash - 1);
+    ctx.fillStyle = '#556688';
+    ctx.font = '13px "Courier New", monospace';
+    ctx.fillText('ЛУЧШИЙ  ' + Math.floor(g.hiScore/10), IW/2, IH/2 + 2);
 
-            // обновление препятствий и коллизии
-            for (const obs of game.obstacles) {
-                obs.y += game.speed;
-                if (obs.phased) {
-                    obs.phasedAlpha = Math.max(0.12, obs.phasedAlpha - 0.035);
-                }
+    ctx.fillStyle = '#378ADD';
+    rr(IW/2-70, IH/2+44, 140, 46, 12);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(100,180,255,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 15px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('▶  ЕЩЁ РАЗ', IW/2, IH/2 + 73);
+  }
 
-                // коллизия (учитываем радиус игрока и размер блока)
-                const dx = Math.abs(game.pX - obs.x);
-                const dy = Math.abs(PLAYER_Y - obs.y);
-                const collisionDistX = PLAYER_RADIUS + obs.w / 2 - 4;
-                const collisionDistY = PLAYER_RADIUS + obs.h / 2 - 4;
+  ctx.textAlign = 'left';
+}
 
-                if (dx < collisionDistX && dy < collisionDistY) {
-                    if (game.pColor === obs.color) {
-                        if (!obs.phased) {
-                            obs.phased = true;
-                            game.score += 600;
-                            game.flash = 16;
-                            game.flashColor = COLS[game.pColor];
-                            spawnParticles(game.pX, PLAYER_Y, COLS[game.pColor], 20);
-                        }
-                    } else {
-                        if (!obs.hit && !obs.phased) {
-                            obs.hit = true;
-                            game.lives--;
-                            game.flash = 14;
-                            game.flashColor = '#E24B4A';
-                            spawnParticles(game.pX, PLAYER_Y, '#b0b0c0', 22);
-                            if (game.lives <= 0) {
-                                game.hiScore = Math.max(game.hiScore, game.score);
-                                game.phase = 'dead';
-                            }
-                        }
-                    }
-                }
-            }
+// ─── Loop ─────────────────────────────────────────────────────────────
+function loop() { update(); draw(); requestAnimationFrame(loop); }
+loop();
 
-            // удаление ушедших препятствий
-            game.obstacles = game.obstacles.filter(o => o.y - o.h / 2 < IH + 30);
-
-            // частицы
-            for (const p of game.particles) {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vx *= 0.92;
-                p.vy *= 0.92;
-                p.life--;
-            }
-            game.particles = game.particles.filter(p => p.life > 0);
-        }
-
-        // ----- рисование (адаптировано под мобилу: крупнее шрифты, жирнее) -----
-        function roundedRect(ctx, x, y, w, h, r) {
-            ctx.beginPath();
-            ctx.moveTo(x + r, y);
-            ctx.lineTo(x + w - r, y);
-            ctx.arcTo(x + w, y, x + w, y + r, r);
-            ctx.lineTo(x + w, y + h - r);
-            ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-            ctx.lineTo(x + r, y + h);
-            ctx.arcTo(x, y + h, x, y + h - r, r);
-            ctx.lineTo(x, y + r);
-            ctx.arcTo(x, y, x + r, y, r);
-            ctx.closePath();
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, IW, IH);
-            
-            // фон
-            ctx.fillStyle = '#f8f8fc';
-            ctx.fillRect(0, 0, IW, IH);
-
-            // разделители дорожек
-            for (let i = 1; i < LANES; i++) {
-                ctx.strokeStyle = '#d4d4e8';
-                ctx.lineWidth = 1.5;
-                ctx.setLineDash([7, 8]);
-                ctx.beginPath();
-                ctx.moveTo(LANE_WIDTH * i, 0);
-                ctx.lineTo(LANE_WIDTH * i, IH);
-                ctx.stroke();
-            }
-            ctx.setLineDash([]);
-
-            // лёгкая тонировка дорожек
-            for (let i = 0; i < LANES; i++) {
-                ctx.fillStyle = CFILL[i] + '60';
-                ctx.fillRect(LANE_WIDTH * i, 0, LANE_WIDTH, IH);
-            }
-
-            // названия цветов над дорожками (в игре)
-            if (game.phase === 'play') {
-                for (let i = 0; i < LANES; i++) {
-                    ctx.fillStyle = COLS[i] + 'dd';
-                    ctx.font = 'bold 11px monospace';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(CNAMES[i], LANE_X(i), 22);
-                }
-            }
-
-            // вспышка (flash)
-            if (game.flash > 0) {
-                const alpha = Math.min(0.35, (game.flash / 18) * 0.5);
-                ctx.fillStyle = game.flashColor || '#ffffff';
-                ctx.globalAlpha = alpha;
-                ctx.fillRect(0, 0, IW, IH);
-                ctx.globalAlpha = 1.0;
-            }
-
-            // частицы
-            for (const p of game.particles) {
-                ctx.globalAlpha = (p.life / p.maxLife) * 0.85;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.globalAlpha = 1.0;
-
-            // препятствия
-            for (const obs of game.obstacles) {
-                const alpha = obs.phased ? obs.phasedAlpha : 1;
-                ctx.globalAlpha = alpha;
-                
-                // тень
-                ctx.fillStyle = COLS[obs.color] + '30';
-                roundedRect(ctx, obs.x - obs.w/2 + 3, obs.y - obs.h/2 + 4, obs.w, obs.h, 10);
-                ctx.fill();
-                
-                // основной блок
-                ctx.fillStyle = obs.phased ? COLS[obs.color] + '55' : COLS[obs.color];
-                roundedRect(ctx, obs.x - obs.w/2, obs.y - obs.h/2, obs.w, obs.h, 10);
-                ctx.fill();
-                
-                if (!obs.phased) {
-                    ctx.strokeStyle = '#ffffffaa';
-                    ctx.lineWidth = 2.5;
-                    ctx.stroke();
-                }
-                
-                // текст внутри блока
-                ctx.globalAlpha = obs.phased ? 0.3 : 1;
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = 'bold 11px monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText(CNAMES[obs.color], obs.x, obs.y + 5);
-            }
-            ctx.globalAlpha = 1.0;
-
-            // ----- игрок (крупнее) -----
-            if (game.phase === 'play') {
-                // аура
-                ctx.fillStyle = COLS[game.pColor] + '30';
-                ctx.beginPath();
-                ctx.arc(game.pX, PLAYER_Y, PLAYER_RADIUS + 14, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // основной круг
-                ctx.fillStyle = COLS[game.pColor];
-                ctx.beginPath();
-                ctx.arc(game.pX, PLAYER_Y, PLAYER_RADIUS, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#ffffffee';
-                ctx.lineWidth = 3.2;
-                ctx.beginPath();
-                ctx.arc(game.pX, PLAYER_Y, PLAYER_RADIUS, 0, Math.PI * 2);
-                ctx.stroke();
-                
-                // текст цвета
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = 'bold 11px monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText(CNAMES[game.pColor], game.pX, PLAYER_Y + 5);
-            }
-
-            // ----- HUD (увеличенный, читаемый) -----
-            if (game.phase === 'play' || game.phase === 'dead') {
-                // жизни (сердечки / точки)
-                for (let i = 0; i < 3; i++) {
-                    ctx.fillStyle = i < game.lives ? '#E24B4A' : '#c0c0d0';
-                    ctx.beginPath();
-                    ctx.arc(20 + i * 26, IH - 22, 8, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.strokeStyle = '#ffffff90';
-                    ctx.lineWidth = 1.8;
-                    ctx.stroke();
-                }
-                
-                // счёт
-                ctx.fillStyle = '#1a1a2e';
-                ctx.font = 'bold 18px monospace';
-                ctx.textAlign = 'right';
-                ctx.fillText(Math.floor(game.score / 10), IW - 16, IH - 14);
-                
-                // скорость
-                ctx.fillStyle = '#6a6a8c';
-                ctx.font = '11px monospace';
-                ctx.textAlign = 'right';
-                ctx.fillText('SPD ' + game.speed.toFixed(1), IW - 16, 22);
-            }
-
-            // ----- стартовый экран (адаптирован под мобилу) -----
-            if (game.phase === 'start') {
-                ctx.fillStyle = 'rgba(248, 248, 252, 0.94)';
-                ctx.fillRect(0, 0, IW, IH);
-                
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#1e1e30';
-                ctx.font = 'bold 24px monospace';
-                ctx.fillText('WAVELENGTH', IW/2, IH/2 - 120);
-                
-                ctx.fillStyle = '#4e4e70';
-                ctx.font = '12px monospace';
-                ctx.fillText('блоки падают · совмести цвет', IW/2, IH/2 - 88);
-                ctx.fillText('пройди сквозь · не ошибись', IW/2, IH/2 - 68);
-                
-                // демо цветов
-                const demo = [['#E24B4A', 'RED'], ['#4aaa5a', 'GRN'], ['#378ADD', 'BLU']];
-                demo.forEach(([col, label], i) => {
-                    const x = IW/2 - 70 + i * 70;
-                    ctx.fillStyle = col;
-                    ctx.beginPath();
-                    ctx.arc(x, IH/2, 18, 0, Math.PI*2);
-                    ctx.fill();
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 10px monospace';
-                    ctx.fillText(label, x, IH/2 + 6);
-                });
-                
-                ctx.fillStyle = '#1e1e30';
-                ctx.font = '12px monospace';
-                ctx.fillText('←  →  смена дорожки', IW/2, IH/2 + 52);
-                ctx.fillText('центр экрана = цвет', IW/2, IH/2 + 72);
-                
-                // большая кнопка "играть"
-                ctx.fillStyle = '#378ADD';
-                roundedRect(ctx, IW/2 - 80, IH/2 + 104, 160, 48, 28);
-                ctx.fill();
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 16px monospace';
-                ctx.fillText('▶  ИГРАТЬ', IW/2, IH/2 + 133);
-            }
-
-            // ----- экран проигрыша -----
-            if (game.phase === 'dead') {
-                ctx.fillStyle = 'rgba(248, 248, 252, 0.92)';
-                ctx.fillRect(0, 0, IW, IH);
-                
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#E24B4A';
-                ctx.font = 'bold 20px monospace';
-                ctx.fillText('СИГНАЛ ПОТЕРЯН', IW/2, IH/2 - 70);
-                
-                ctx.fillStyle = '#1a1a2e';
-                ctx.font = 'bold 24px monospace';
-                ctx.fillText('СЧЁТ  ' + Math.floor(game.score / 10), IW/2, IH/2 - 30);
-                
-                ctx.fillStyle = '#7a7aa0';
-                ctx.font = '14px monospace';
-                ctx.fillText('ЛУЧШИЙ  ' + Math.floor(game.hiScore / 10), IW/2, IH/2 + 2);
-                
-                ctx.fillStyle = '#378ADD';
-                roundedRect(ctx, IW/2 - 80, IH/2 + 42, 160, 48, 28);
-                ctx.fill();
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 16px monospace';
-                ctx.fillText('▶  ЕЩЁ РАЗ', IW/2, IH/2 + 71);
-            }
-            
-            ctx.textAlign = 'left';
-        }
-
-        // ----- игровой цикл -----
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
-        gameLoop();
-
-        // дополнительно: предотвращаем двойной тап зум на всём документе
-        document.addEventListener('touchstart', (e) => {
-            if (e.target === cv || e.target.closest('button')) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
-        // стартовый рендер
-        draw();
-    })();
+})();
 </script>
 </body>
 </html>
