@@ -87,6 +87,7 @@
 
 const cv   = document.getElementById('cv');
 const ctx  = cv.getContext('2d', { alpha: false });
+const wrap = document.getElementById('wrap');
 const btns = document.getElementById('btns');
 const btnL = document.getElementById('bl');
 const btnC = document.getElementById('bc');
@@ -95,7 +96,6 @@ const btnR = document.getElementById('br');
 const IW = 320, IH = 520;
 let dpr = 1, scl = 1;
 
-// Static offscreen background — built once, blitted every frame
 const bgCv  = document.createElement('canvas');
 const bgCtx = bgCv.getContext('2d', { alpha: false });
 
@@ -106,16 +106,80 @@ const COLSG  = [53,  168, 125];
 const COLSB  = [53,  69,  204];
 const CNAMES = ['RED','GRN','BLU'];
 const NL = 3;
-const ILW = IW / NL;                           // lane width (int-friendly)
-const LX  = [ILW*.5, ILW*1.5, ILW*2.5];      // lane centres
-const PY  = IH - 74;
+const ILW = IW / NL;
+const LX  = [ILW*.5, ILW*1.5, ILW*2.5];
+const PY  = IH * 0.62;
 const PR  = 17;
+
+// ─── Themes ─────────────────────────────────────────────────────
+let theme = 'light'; // 'light' | 'dark'
+
+const THEMES = {
+  light: {
+    bgFill:      '#f7f7fd',
+    dotColor:    'rgba(128,118,198,0.10)',
+    laneDiv:     'rgba(108,98,198,0.13)',
+    laneTints:   ['rgba(217,53,53,0.052)','rgba(42,168,69,0.052)','rgba(30,125,204,0.052)'],
+    overlay:     'rgba(242,241,255,0.94)',
+    titleColor:  '#1e7dcc',
+    subtitleLine:'rgba(30,125,204,0.22)',
+    textColor:   'rgba(22,18,90,0.46)',
+    hintColor:   'rgba(60,50,148,0.36)',
+    hudTextColor:'#181e60',
+    hudScoreBg:  'rgba(255,255,255,0.86)',
+    hudScoreBd:  'rgba(108,98,200,0.15)',
+    spdColor:    'rgba(98,90,168,0.48)',
+    lifeEmpty:   'rgba(185,180,218,0.45)',
+    deadCard:    'rgba(24,20,88,0.09)',
+    deadCardBd:  'rgba(98,88,198,0.14)',
+    wrapBg:      'linear-gradient(160deg,#f3f2ff 0%,#e8e6f8 60%,#ede8f5 100%)',
+  },
+  dark: {
+    bgFill:      '#0f0f1e',
+    dotColor:    'rgba(90,80,180,0.14)',
+    laneDiv:     'rgba(255,255,255,0.07)',
+    laneTints:   ['rgba(226,75,74,0.07)','rgba(74,170,90,0.07)','rgba(55,138,221,0.07)'],
+    overlay:     'rgba(12,12,26,0.94)',
+    titleColor:  '#5ab4ff',
+    subtitleLine:'rgba(90,180,255,0.18)',
+    textColor:   'rgba(210,210,255,0.52)',
+    hintColor:   'rgba(180,180,255,0.30)',
+    hudTextColor:'#d8d8ff',
+    hudScoreBg:  'rgba(28,26,58,0.88)',
+    hudScoreBd:  'rgba(100,90,200,0.22)',
+    spdColor:    'rgba(130,120,200,0.50)',
+    lifeEmpty:   'rgba(55,50,95,0.55)',
+    deadCard:    'rgba(200,200,255,0.05)',
+    deadCardBd:  'rgba(120,110,220,0.15)',
+    wrapBg:      'linear-gradient(160deg,#0c0c1e 0%,#10101c 60%,#0e0d1a 100%)',
+  }
+};
+
+function TH(){ return THEMES[theme]; }
+
+function applyTheme(){
+  wrap.style.background = TH().wrapBg;
+  buildBg();
+}
+
+// ─── Theme toggle hit zones on start screen ──────────────────────
+// Two pills: ☀ СВЕТЛЫЙ  |  ☾ ТЁМНЫЙ    at y≈IH/2+72
+const TPILL_Y  = IH/2 + 70;   // centre Y of pill row
+const TPILL_H  = 30;
+const TPILL_W  = 108;
+const TPILL_LX = IW/2 - TPILL_W - 6;   // left pill left edge
+const TPILL_RX = IW/2 + 6;              // right pill left edge
+
+function hitTheme(lx,ly){
+  // returns 'light','dark', or null
+  if(ly < TPILL_Y - TPILL_H/2 - 4 || ly > TPILL_Y + TPILL_H/2 + 4) return null;
+  if(lx >= TPILL_LX && lx <= TPILL_LX + TPILL_W) return 'light';
+  if(lx >= TPILL_RX && lx <= TPILL_RX + TPILL_W) return 'dark';
+  return null;
+}
 
 function colAlpha(ci, a) {
   return `rgba(${COLSR[ci]},${COLSG[ci]},${COLSB[ci]},${a})`;
-}
-function lighten(ci, t) {
-  return `rgb(${(COLSR[ci]+(255-COLSR[ci])*t)|0},${(COLSG[ci]+(255-COLSG[ci])*t)|0},${(COLSB[ci]+(255-COLSB[ci])*t)|0})`;
 }
 
 // ─── Resize ─────────────────────────────────────────────────────
@@ -136,19 +200,16 @@ function resize() {
 }
 
 function buildBg() {
-  bgCtx.fillStyle = '#f7f7fd';
+  const t = TH();
+  bgCtx.fillStyle = t.bgFill;
   bgCtx.fillRect(0, 0, IW, IH);
-  // Dot grid — once only
-  bgCtx.fillStyle = 'rgba(128,118,198,0.10)';
+  bgCtx.fillStyle = t.dotColor;
   for (let y = 10; y < IH; y += 22)
     for (let x = 10; x < IW; x += 22) {
       bgCtx.beginPath(); bgCtx.arc(x,y,1.1,0,6.2832); bgCtx.fill();
     }
-  // Lane tints
-  const T=['rgba(217,53,53,0.052)','rgba(42,168,69,0.052)','rgba(30,125,204,0.052)'];
-  for (let i=0;i<NL;i++) { bgCtx.fillStyle=T[i]; bgCtx.fillRect(ILW*i,0,ILW,IH); }
-  // Dividers
-  bgCtx.strokeStyle='rgba(108,98,198,0.13)';
+  for (let i=0;i<NL;i++) { bgCtx.fillStyle=t.laneTints[i]; bgCtx.fillRect(ILW*i,0,ILW,IH); }
+  bgCtx.strokeStyle=t.laneDiv;
   bgCtx.lineWidth=1; bgCtx.setLineDash([5,9]);
   for (let i=1;i<NL;i++){bgCtx.beginPath();bgCtx.moveTo(ILW*i,0);bgCtx.lineTo(ILW*i,IH);bgCtx.stroke();}
   bgCtx.setLineDash([]);
@@ -156,6 +217,7 @@ function buildBg() {
 
 resize();
 window.addEventListener('resize', resize);
+applyTheme();
 
 // ─── Rounded rect ───────────────────────────────────────────────
 function rr(x,y,w,h,r){
@@ -179,6 +241,12 @@ function mvLane(d){ if(g.phase!=='play')return; g.pLane=Math.max(0,Math.min(2,g.
 function cycClr(){ if(g.phase!=='play')return; g.pColor=(g.pColor+1)%3; g.colorAnim=10; }
 function startG(){ hi=g.hiScore; g=mk(); g.hiScore=hi; g.phase='play'; }
 
+// ─── Canvas coordinate helper ────────────────────────────────────
+function canvasXY(clientX, clientY){
+  const r = cv.getBoundingClientRect();
+  return [(clientX-r.left)/r.width*IW, (clientY-r.top)/r.height*IH];
+}
+
 // ─── Input ──────────────────────────────────────────────────────
 document.addEventListener('keydown', e=>{
   if(['ArrowLeft','ArrowRight','Space','KeyA','KeyD','KeyX'].includes(e.code)) e.preventDefault();
@@ -187,14 +255,32 @@ document.addEventListener('keydown', e=>{
   if(e.code==='ArrowRight'||e.code==='KeyD') mvLane(1);
   if(e.code==='Space'||e.code==='KeyX') cycClr();
 });
+
+function handleCanvasTap(lx, ly){
+  if(g.phase==='start'){
+    const th = hitTheme(lx, ly);
+    if(th){ theme=th; applyTheme(); return; }
+    // Check play button area
+    if(ly > IH/2+76 && ly < IH/2+122 && lx > IW/2-70 && lx < IW/2+70){ startG(); return; }
+    startG();
+    return;
+  }
+  if(g.phase!=='play'){ startG(); return; }
+  if(lx<IW/3)mvLane(-1); else if(lx>IW*2/3)mvLane(1); else cycClr();
+}
+
 cv.addEventListener('touchstart', e=>{
   e.preventDefault();
-  if(g.phase!=='play'){startG();return;}
-  const t=e.changedTouches[0], r=cv.getBoundingClientRect();
-  const tx=(t.clientX-r.left)/r.width*IW;
-  if(tx<IW/3)mvLane(-1); else if(tx>IW*2/3)mvLane(1); else cycClr();
+  const t=e.changedTouches[0];
+  const [lx,ly]=canvasXY(t.clientX,t.clientY);
+  handleCanvasTap(lx,ly);
 },{passive:false});
-cv.addEventListener('click',()=>{if(g.phase!=='play')startG();});
+
+cv.addEventListener('click', e=>{
+  const [lx,ly]=canvasXY(e.clientX,e.clientY);
+  handleCanvasTap(lx,ly);
+});
+
 function addBtn(el,fn){
   function go(e){
     e.preventDefault();
@@ -231,7 +317,6 @@ function update(){
   if(++g.spwnT>=g.spwnI){spwnObs();g.spwnT=0;}
   if(g.flash>0)g.flash--;
   if(g.colorAnim>0)g.colorAnim--;
-
   const obs=g.obs, px=g.pX;
   for(let i=obs.length-1;i>=0;i--){
     const o=obs[i];
@@ -255,35 +340,63 @@ function update(){
   }
 }
 
+// ─── Draw theme pills ────────────────────────────────────────────
+function drawThemePills(){
+  const pills=[
+    {x:TPILL_LX, label:'☀  СВЕТЛЫЙ', id:'light'},
+    {x:TPILL_RX, label:'☾  ТЁМНЫЙ',  id:'dark'},
+  ];
+  ctx.font='bold 10px "Courier New",monospace';
+  for(const p of pills){
+    const active = theme === p.id;
+    const by = TPILL_Y - TPILL_H/2;
+    if(active){
+      ctx.fillStyle = '#1e7dcc';
+      rr(p.x, by, TPILL_W, TPILL_H, 10); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.18)';
+      rr(p.x+3, by+3, TPILL_W-6, 12, 6); ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=1.2;
+      rr(p.x, by, TPILL_W, TPILL_H, 10); ctx.stroke();
+      ctx.fillStyle='#fff';
+    } else {
+      ctx.fillStyle = theme==='dark'?'rgba(255,255,255,0.07)':'rgba(0,0,60,0.07)';
+      rr(p.x, by, TPILL_W, TPILL_H, 10); ctx.fill();
+      ctx.strokeStyle = theme==='dark'?'rgba(255,255,255,0.14)':'rgba(0,0,80,0.15)';
+      ctx.lineWidth=1.2;
+      rr(p.x, by, TPILL_W, TPILL_H, 10); ctx.stroke();
+      ctx.fillStyle = theme==='dark'?'rgba(200,200,255,0.5)':'rgba(40,30,120,0.4)';
+    }
+    ctx.textAlign='center';
+    ctx.fillText(p.label, p.x+TPILL_W/2, TPILL_Y+4);
+  }
+}
+
 // ─── Draw ───────────────────────────────────────────────────────
 function draw(){
-  // 1. Blit static bg
+  const t = TH();
+
   ctx.drawImage(bgCv,0,0,bgCv.width,bgCv.height,0,0,IW,IH);
 
-  // 2. Lane labels
   if(g.phase==='play'){
     ctx.font='bold 9px "Courier New",monospace';
     ctx.textAlign='center';
     for(let i=0;i<NL;i++){ctx.fillStyle=COLS[i]+'bb';ctx.fillText(CNAMES[i],LX[i],18);}
   }
 
-  // 3. Flash overlay
   if(g.flash>0){
     const a=(g.flash/14*40)|0;
     ctx.fillStyle=g.flashHit?`rgba(217,53,53,${a/255})`:colAlpha(g.flashCI,a/255);
     ctx.fillRect(0,0,IW,IH);
   }
 
-  // 4. Particles
   for(let i=0;i<g.parts.length;i++){
-    const p=g.parts[i], t=p.life/p.maxLife;
-    ctx.globalAlpha=t*0.88;
+    const p=g.parts[i], pf=p.life/p.maxLife;
+    ctx.globalAlpha=pf*0.88;
     ctx.fillStyle=p.ci>=0?COLS[p.ci]:'#aaaaaa';
-    ctx.beginPath();ctx.arc(p.x|0,p.y|0,p.r*t,0,6.2832);ctx.fill();
+    ctx.beginPath();ctx.arc(p.x|0,p.y|0,p.r*pf,0,6.2832);ctx.fill();
   }
   ctx.globalAlpha=1;
 
-  // 5. Obstacles
   for(let i=0;i<g.obs.length;i++){
     const o=g.obs[i], ci=o.color;
     ctx.globalAlpha=o.phased?o.pAlpha:1;
@@ -291,18 +404,13 @@ function draw(){
       ctx.strokeStyle=colAlpha(ci,0.35); ctx.lineWidth=2;
       rr(o.x-25,o.y-19,50,38,10); ctx.stroke();
     } else {
-      // shadow (offset fill, zero ctx.shadow cost)
       ctx.fillStyle=colAlpha(ci,0.14);
       rr(o.x-23,o.y-15,50,38,10); ctx.fill();
-      // block
       ctx.fillStyle=COLS[ci];
       rr(o.x-25,o.y-19,50,38,10); ctx.fill();
-      // gloss
       ctx.fillStyle='rgba(255,255,255,0.28)';
       rr(o.x-21,o.y-15,42,14,6); ctx.fill();
-      // border
       ctx.strokeStyle=colAlpha(ci,0.32); ctx.lineWidth=1.5; ctx.stroke();
-      // label
       ctx.fillStyle='#fff';
       ctx.font='bold 10px "Courier New",monospace';
       ctx.textAlign='center';
@@ -311,33 +419,25 @@ function draw(){
   }
   ctx.globalAlpha=1;
 
-  // 6. Player
   if(g.phase==='play'){
     const ci=g.pColor, px=g.pX|0;
-    // outer aura
     const aR=PR+14+(g.colorAnim>0?g.colorAnim*1.3:0);
     ctx.fillStyle=colAlpha(ci,0.15);
     ctx.beginPath();ctx.arc(px,PY,aR,0,6.2832);ctx.fill();
-    // inner halo
     ctx.fillStyle=colAlpha(ci,0.27);
     ctx.beginPath();ctx.arc(px,PY,PR+6,0,6.2832);ctx.fill();
-    // body
     ctx.fillStyle=COLS[ci];
     ctx.beginPath();ctx.arc(px,PY,PR,0,6.2832);ctx.fill();
-    // gloss
     ctx.fillStyle='rgba(255,255,255,0.30)';
     ctx.beginPath();ctx.ellipse(px-4,PY-5,7,5,-0.4,0,6.2832);ctx.fill();
-    // ring
     ctx.strokeStyle='rgba(255,255,255,0.88)';ctx.lineWidth=2.5;
     ctx.beginPath();ctx.arc(px,PY,PR,0,6.2832);ctx.stroke();
-    // label
     ctx.fillStyle='#fff';
     ctx.font='bold 9px "Courier New",monospace';
     ctx.textAlign='center';
     ctx.fillText(CNAMES[ci],px,PY+3.5);
   }
 
-  // 7. HUD
   if(g.phase==='play'||g.phase==='dead'){
     for(let i=0;i<3;i++){
       if(i<g.lives){
@@ -346,33 +446,33 @@ function draw(){
         ctx.fillStyle='#d93535';
         ctx.beginPath();ctx.arc(18+i*24,IH-18,7,0,6.2832);ctx.fill();
       } else {
-        ctx.fillStyle='rgba(185,180,218,0.45)';
+        ctx.fillStyle=t.lifeEmpty;
         ctx.beginPath();ctx.arc(18+i*24,IH-18,7,0,6.2832);ctx.fill();
       }
     }
     ctx.font='bold 14px "Courier New",monospace';
     const sc=((g.score/10)|0).toString();
     const sw=ctx.measureText(sc).width+22;
-    ctx.fillStyle='rgba(255,255,255,0.86)';
+    ctx.fillStyle=t.hudScoreBg;
     rr(IW-sw-8,IH-30,sw+4,22,11);ctx.fill();
-    ctx.strokeStyle='rgba(108,98,200,0.15)';ctx.lineWidth=1;ctx.stroke();
-    ctx.fillStyle='#181e60';ctx.textAlign='right';
+    ctx.strokeStyle=t.hudScoreBd;ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle=t.hudTextColor;ctx.textAlign='right';
     ctx.fillText(sc,IW-14,IH-13);
-    ctx.fillStyle='rgba(98,90,168,0.48)';
+    ctx.fillStyle=t.spdColor;
     ctx.font='8px "Courier New",monospace';ctx.textAlign='right';
     ctx.fillText('SPD '+g.spd.toFixed(1),IW-12,16);
   }
 
-  // 8. Overlay screens
+  // START screen
   if(g.phase==='start'){
-    ctx.fillStyle='rgba(243,242,255,0.93)';ctx.fillRect(0,0,IW,IH);
+    ctx.fillStyle=t.overlay;ctx.fillRect(0,0,IW,IH);
     ctx.textAlign='center';
-    ctx.fillStyle='#1e7dcc';
+    ctx.fillStyle=t.titleColor;
     ctx.font='bold 30px "Courier New",monospace';
     ctx.fillText('WAVELENGTH',IW/2,IH/2-118);
-    ctx.fillStyle='rgba(30,125,204,0.2)';
+    ctx.fillStyle=t.subtitleLine;
     ctx.fillRect(IW/2-82,IH/2-108,164,1.5);
-    ctx.fillStyle='rgba(25,22,96,0.46)';
+    ctx.fillStyle=t.textColor;
     ctx.font='10px "Courier New",monospace';
     ctx.fillText('блоки падают сверху',IW/2,IH/2-90);
     ctx.fillText('совпади по цвету — пройди насквозь',IW/2,IH/2-73);
@@ -385,22 +485,30 @@ function draw(){
       ctx.fillStyle='#fff';ctx.font='bold 9px "Courier New",monospace';ctx.textAlign='center';
       ctx.fillText(CNAMES[i],x,IH/2+12);
     }
-    ctx.fillStyle='rgba(65,55,158,0.38)';ctx.font='10px "Courier New",monospace';
-    ctx.fillText('◀ ▶  дорожка   |   ◈  цвет',IW/2,IH/2+56);
+    ctx.fillStyle=t.hintColor;ctx.font='10px "Courier New",monospace';
+    ctx.fillText('◀ ▶  дорожка   |   ◈  цвет',IW/2,IH/2+40);
+
+    // Theme label
+    ctx.fillStyle=t.hintColor;
+    ctx.font='9px "Courier New",monospace';
+    ctx.fillText('ФОН:',IW/2,TPILL_Y-22);
+
+    drawThemePills();
     drawBtn(IW/2,IH/2+111,'▶  ИГРАТЬ');
   }
 
+  // DEAD screen
   if(g.phase==='dead'){
-    ctx.fillStyle='rgba(243,242,255,0.93)';ctx.fillRect(0,0,IW,IH);
+    ctx.fillStyle=t.overlay;ctx.fillRect(0,0,IW,IH);
     ctx.textAlign='center';
     ctx.fillStyle='#d93535';ctx.font='bold 20px "Courier New",monospace';
     ctx.fillText('СИГНАЛ ПОТЕРЯН',IW/2,IH/2-68);
-    ctx.fillStyle='rgba(24,20,88,0.09)';
+    ctx.fillStyle=t.deadCard;
     rr(IW/2-90,IH/2-52,180,58,13);ctx.fill();
-    ctx.strokeStyle='rgba(98,88,198,0.14)';ctx.lineWidth=1;ctx.stroke();
-    ctx.fillStyle='#181e60';ctx.font='bold 22px "Courier New",monospace';
+    ctx.strokeStyle=t.deadCardBd;ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle=t.hudTextColor;ctx.font='bold 22px "Courier New",monospace';
     ctx.fillText('СЧЁТ  '+((g.score/10)|0),IW/2,IH/2-22);
-    ctx.fillStyle='rgba(68,65,158,0.46)';ctx.font='13px "Courier New",monospace';
+    ctx.fillStyle=t.spdColor;ctx.font='13px "Courier New",monospace';
     ctx.fillText('ЛУЧШИЙ  '+((g.hiScore/10)|0),IW/2,IH/2+6);
     drawBtn(IW/2,IH/2+67,'▶  ЕЩЁ РАЗ');
   }
@@ -419,7 +527,6 @@ function drawBtn(cx,cy,label){
   ctx.fillText(label,cx,cy);
 }
 
-// ─── Loop ───────────────────────────────────────────────────────
 function loop(){ update(); draw(); requestAnimationFrame(loop); }
 requestAnimationFrame(loop);
 
