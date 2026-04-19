@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="light">
 <title>WAVELENGTH</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,7 +13,7 @@
   html, body {
     width: 100%;
     height: 100%;
-    background: #0e0e18;
+    background: #f0f0f8;
     overflow: hidden;
     touch-action: none;
     -webkit-tap-highlight-color: transparent;
@@ -32,53 +32,60 @@
     height: 100dvh;
     gap: 0;
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    background: linear-gradient(160deg, #f5f5ff 0%, #eaeaf8 50%, #f0eff8 100%);
   }
 
   #cv {
     display: block;
-    border-radius: 18px;
+    border-radius: 22px;
     touch-action: none;
     cursor: pointer;
     flex-shrink: 0;
+    box-shadow:
+      0 8px 40px rgba(80,80,180,0.13),
+      0 2px 8px rgba(80,80,180,0.08),
+      0 0 0 1.5px rgba(180,180,230,0.45);
   }
 
   #btns {
     display: flex;
     gap: 10px;
     flex-shrink: 0;
-    margin-top: 10px;
+    margin-top: 11px;
     padding: 0 12px;
   }
 
   .btn {
     flex: 1;
     padding: 0;
-    font-size: 14px;
+    font-size: 13px;
     font-family: 'Courier New', monospace;
     cursor: pointer;
-    border: 1.5px solid rgba(255,255,255,0.15);
-    border-radius: 14px;
-    background: rgba(255,255,255,0.07);
-    color: #fff;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    transition: background 0.08s, transform 0.08s;
+    border: 1.5px solid rgba(120,120,200,0.2);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.72);
+    color: #3a3a6a;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    transition: background 0.08s, transform 0.08s, box-shadow 0.08s;
     -webkit-tap-highlight-color: transparent;
     touch-action: none;
-    /* height set via JS */
+    box-shadow: 0 2px 12px rgba(80,80,180,0.09), 0 1px 0 rgba(255,255,255,0.9) inset;
   }
 
   .btn:active, .btn.pressed {
-    background: rgba(255,255,255,0.2);
+    background: rgba(220,220,245,0.9);
     transform: scale(0.96);
+    box-shadow: 0 1px 4px rgba(80,80,180,0.08);
   }
 
   #bc {
-    background: rgba(55, 138, 221, 0.25);
-    border-color: rgba(55, 138, 221, 0.5);
+    background: rgba(55,138,221,0.12);
+    border-color: rgba(55,138,221,0.35);
+    color: #1a6bbf;
   }
   #bc:active, #bc.pressed {
-    background: rgba(55, 138, 221, 0.5);
+    background: rgba(55,138,221,0.25);
   }
 </style>
 </head>
@@ -96,39 +103,28 @@
 (function(){
 'use strict';
 
-// ─── Canvas + sizing ────────────────────────────────────────────────
-const cv  = document.getElementById('cv');
-const ctx = cv.getContext('2d');
+const cv   = document.getElementById('cv');
+const ctx  = cv.getContext('2d');
 const wrap = document.getElementById('wrap');
 const btns = document.getElementById('btns');
 const btnL = document.getElementById('bl');
 const btnC = document.getElementById('bc');
 const btnR = document.getElementById('br');
 
-const IW = 320, IH = 520; // logical resolution
+const IW = 320, IH = 520;
 let dpr = 1, scl = 1;
 
 function resize() {
   dpr = window.devicePixelRatio || 1;
-  // available space
-  const safeT = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || 0) || 0;
-  const safeB = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sab') || 0) || 0;
   const winW = window.innerWidth;
   const winH = window.innerHeight;
-
-  // button row height: ~14% of screen, min 60px, max 90px
   const btnH = Math.min(90, Math.max(60, Math.floor(winH * 0.13)));
-  const btnMT = 10;
+  const btnMT = 11;
   btns.style.width = winW + 'px';
-  btns.style.paddingLeft = '12px';
-  btns.style.paddingRight = '12px';
   [btnL, btnC, btnR].forEach(b => b.style.height = btnH + 'px');
-
-  // canvas area
-  const availH = winH - btnH - btnMT - 20;
-  const availW = winW - 24;
+  const availH = winH - btnH - btnMT - 24;
+  const availW = winW - 28;
   scl = Math.min(availW / IW, availH / IH);
-
   const dispW = Math.floor(IW * scl);
   const dispH = Math.floor(IH * scl);
   cv.style.width  = dispW + 'px';
@@ -141,10 +137,20 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
-// ─── Game constants ──────────────────────────────────────────────────
-const COLS   = ['#E24B4A', '#4aaa5a', '#378ADD'];
+// ─── Palette (light mode) ────────────────────────────────────────────
+const COLS   = ['#d93535', '#2da84a', '#1e7dcc'];
 const CNAMES = ['RED', 'GRN', 'BLU'];
-const CFILL  = ['rgba(226,75,74,0.07)', 'rgba(74,170,90,0.07)', 'rgba(55,138,221,0.07)'];
+const CFILL  = [
+  'rgba(217,53,53,0.055)',
+  'rgba(45,168,74,0.055)',
+  'rgba(30,125,204,0.055)'
+];
+const CGLOW  = [
+  'rgba(217,53,53,0.18)',
+  'rgba(45,168,74,0.18)',
+  'rgba(30,125,204,0.18)'
+];
+
 const NL = 3;
 const LW = IW / NL;
 const LX = l => LW * l + LW / 2;
@@ -159,20 +165,19 @@ function mk() {
     phase: 'start', pLane: 1, pColor: 0, pX: LX(1),
     lives: 3, score: 0, spd: 2.4, obs: [], parts: [],
     frame: 0, spwnT: 0, spwnI: 85, flash: 0, flashCol: '',
-    hiScore: hi, colorAnim: 0
+    hiScore: hi, colorAnim: 0, bgPulse: 0, bgPulseCol: ''
   };
 }
 
 function mvLane(d) {
   if (g.phase !== 'play') return;
-  const prev = g.pLane;
   g.pLane = Math.max(0, Math.min(NL - 1, g.pLane + d));
 }
 
 function cycClr() {
   if (g.phase !== 'play') return;
   g.pColor = (g.pColor + 1) % COLS.length;
-  g.colorAnim = 8;
+  g.colorAnim = 10;
 }
 
 function startG() {
@@ -182,7 +187,6 @@ function startG() {
   g.phase = 'play';
 }
 
-// ─── Keyboard ────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (['ArrowLeft','ArrowRight','Space','KeyA','KeyD','KeyX'].includes(e.code)) e.preventDefault();
   if (g.phase !== 'play') { startG(); return; }
@@ -191,7 +195,6 @@ document.addEventListener('keydown', e => {
   if (e.code === 'Space'      || e.code === 'KeyX') cycClr();
 });
 
-// ─── Touch on canvas ─────────────────────────────────────────────────
 cv.addEventListener('touchstart', e => {
   e.preventDefault();
   if (g.phase !== 'play') { startG(); return; }
@@ -205,7 +208,6 @@ cv.addEventListener('touchstart', e => {
 
 cv.addEventListener('click', () => { if (g.phase !== 'play') startG(); });
 
-// ─── Buttons — use touchstart to skip 300ms delay ────────────────────
 function addBtn(el, action) {
   function go(e) {
     e.preventDefault();
@@ -215,14 +217,13 @@ function addBtn(el, action) {
     else action();
   }
   el.addEventListener('touchstart', go, { passive: false });
-  el.addEventListener('click', go);   // fallback desktop
+  el.addEventListener('click', go);
 }
 
 addBtn(btnL, () => mvLane(-1));
 addBtn(btnC, () => cycClr());
 addBtn(btnR, () => mvLane(1));
 
-// ─── Spawn ───────────────────────────────────────────────────────────
 function spwnObs() {
   const lane  = Math.floor(Math.random() * NL);
   const color = Math.floor(Math.random() * COLS.length);
@@ -232,12 +233,11 @@ function spwnObs() {
 function spwnParts(x, y, color, n) {
   for (let i = 0; i < n; i++) {
     const a = Math.random() * Math.PI * 2;
-    const s = 2 + Math.random() * 5;
-    g.parts.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s, color, life: 32+Math.random()*18, maxLife: 50, r: 2+Math.random()*4 });
+    const s = 2.5 + Math.random() * 5.5;
+    g.parts.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s - 1.2, color, life: 36+Math.random()*20, maxLife: 56, r: 2+Math.random()*4 });
   }
 }
 
-// ─── Update ──────────────────────────────────────────────────────────
 function update() {
   if (g.phase !== 'play') return;
   g.frame++;
@@ -246,12 +246,13 @@ function update() {
   g.pX += (LX(g.pLane) - g.pX) * 0.22;
   g.spwnT++;
   if (g.spwnT >= g.spwnI) { spwnObs(); g.spwnT = 0; }
-  g.flash    = Math.max(0, g.flash - 1);
+  g.flash     = Math.max(0, g.flash - 1);
   g.colorAnim = Math.max(0, g.colorAnim - 1);
+  g.bgPulse   = Math.max(0, g.bgPulse - 1);
 
   for (const o of g.obs) {
     o.y += g.spd;
-    if (o.phased) o.phasedAlpha = Math.max(0.12, o.phasedAlpha - 0.045);
+    if (o.phased) o.phasedAlpha = Math.max(0.1, o.phasedAlpha - 0.045);
     const dx = Math.abs(g.pX - o.x);
     const dy = Math.abs(PY - o.y);
     if (dx < PR + o.w/2 - 6 && dy < PR + o.h/2 - 6) {
@@ -260,25 +261,27 @@ function update() {
           o.phased = true;
           g.score += 500;
           g.flash = 14; g.flashCol = COLS[g.pColor];
-          spwnParts(g.pX, PY, COLS[g.pColor], 18);
+          g.bgPulse = 18; g.bgPulseCol = COLS[g.pColor];
+          spwnParts(g.pX, PY, COLS[g.pColor], 22);
         }
       } else {
         if (!o.hit && !o.phased) {
           o.hit = true;
           g.lives--;
-          g.flash = 14; g.flashCol = '#E24B4A';
-          spwnParts(g.pX, PY, '#888', 18);
+          g.flash = 14; g.flashCol = '#d93535';
+          g.bgPulse = 18; g.bgPulseCol = '#d93535';
+          spwnParts(g.pX, PY, '#aaa', 18);
           if (g.lives <= 0) { g.hiScore = Math.max(g.hiScore, g.score); g.phase = 'dead'; }
         }
       }
     }
   }
   g.obs   = g.obs.filter(o => o.y - o.h/2 < IH + 24);
-  for (const p of g.parts) { p.x += p.vx; p.y += p.vy; p.vx *= 0.92; p.vy *= 0.92; p.life--; }
+  for (const p of g.parts) { p.x += p.vx; p.y += p.vy; p.vx *= 0.91; p.vy = p.vy * 0.91 + 0.18; p.life--; }
   g.parts = g.parts.filter(p => p.life > 0);
 }
 
-// ─── Draw helpers ─────────────────────────────────────────────────────
+// ─── Draw helpers ────────────────────────────────────────────────────
 function rr(x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.arcTo(x+w, y, x+w, y+r, r);
@@ -288,11 +291,33 @@ function rr(x, y, w, h, r) {
   ctx.closePath();
 }
 
-// ─── Draw ─────────────────────────────────────────────────────────────
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return {r,g,b};
+}
+
 function draw() {
-  // BG
-  ctx.fillStyle = '#10101e';
+  // ── Background ──
+  ctx.fillStyle = '#f8f8fd';
   ctx.fillRect(0, 0, IW, IH);
+
+  // Subtle dot-grid texture
+  ctx.fillStyle = 'rgba(140,140,200,0.11)';
+  for (let yy = 10; yy < IH; yy += 22) {
+    for (let xx = 10; xx < IW; xx += 22) {
+      ctx.beginPath(); ctx.arc(xx, yy, 1.1, 0, Math.PI*2); ctx.fill();
+    }
+  }
+
+  // bg pulse on event
+  if (g.bgPulse > 0) {
+    const rgb = hexToRgb(g.bgPulseCol);
+    const a = (g.bgPulse / 18) * 0.1;
+    ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${a})`;
+    ctx.fillRect(0, 0, IW, IH);
+  }
 
   // Lane tints
   for (let i = 0; i < NL; i++) {
@@ -300,16 +325,23 @@ function draw() {
     ctx.fillRect(LW*i, 0, LW, IH);
   }
 
+  // Bottom gradient vignette
+  const vign = ctx.createLinearGradient(0, IH - 100, 0, IH);
+  vign.addColorStop(0, 'rgba(235,235,250,0)');
+  vign.addColorStop(1, 'rgba(225,225,245,0.6)');
+  ctx.fillStyle = vign;
+  ctx.fillRect(0, IH - 100, IW, 100);
+
   // Lane dividers
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.strokeStyle = 'rgba(120,120,200,0.14)';
   ctx.lineWidth = 1;
-  ctx.setLineDash([6, 8]);
+  ctx.setLineDash([5, 9]);
   for (let i = 1; i < NL; i++) {
     ctx.beginPath(); ctx.moveTo(LW*i, 0); ctx.lineTo(LW*i, IH); ctx.stroke();
   }
   ctx.setLineDash([]);
 
-  // Lane color labels top
+  // Lane color labels
   if (g.phase === 'play') {
     for (let i = 0; i < NL; i++) {
       ctx.fillStyle = COLS[i] + 'cc';
@@ -321,39 +353,65 @@ function draw() {
 
   // Flash overlay
   if (g.flash > 0) {
-    const alpha = Math.floor((g.flash / 14) * 50).toString(16).padStart(2, '0');
-    ctx.fillStyle = (g.flashCol || '#ffffff') + alpha;
+    const a = Math.floor((g.flash / 14) * 40).toString(16).padStart(2,'0');
+    ctx.fillStyle = (g.flashCol || '#aaaaff') + a;
     ctx.fillRect(0, 0, IW, IH);
   }
 
   // Particles
   for (const p of g.parts) {
-    ctx.globalAlpha = (p.life / p.maxLife) * 0.85;
+    const t = p.life / p.maxLife;
+    ctx.globalAlpha = t * 0.9;
     ctx.fillStyle = p.color;
-    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 6 * t;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * t, 0, Math.PI*2); ctx.fill();
   }
+  ctx.shadowBlur = 0;
   ctx.globalAlpha = 1;
 
   // Obstacles
   for (const o of g.obs) {
-    const a = o.phased ? o.phasedAlpha : 1;
-    ctx.globalAlpha = a;
-    // shadow
-    ctx.fillStyle = COLS[o.color] + '20';
-    rr(o.x-o.w/2+2, o.y-o.h/2+4, o.w, o.h, 9);
-    ctx.fill();
-    // block
-    ctx.fillStyle = o.phased ? COLS[o.color] + '33' : COLS[o.color];
-    rr(o.x-o.w/2, o.y-o.h/2, o.w, o.h, 9);
-    ctx.fill();
-    if (!o.phased) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    const col = COLS[o.color];
+    const rgb = hexToRgb(col);
+    ctx.globalAlpha = o.phased ? o.phasedAlpha : 1;
+
+    // drop shadow
+    ctx.shadowColor = `rgba(${rgb.r},${rgb.g},${rgb.b},${o.phased ? 0.08 : 0.22})`;
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 4;
+
+    if (o.phased) {
+      // phased — ghost outline
+      ctx.strokeStyle = col + '55';
+      ctx.lineWidth = 2;
+      rr(o.x-o.w/2, o.y-o.h/2, o.w, o.h, 10);
+      ctx.stroke();
+    } else {
+      // filled block
+      const grad = ctx.createLinearGradient(o.x-o.w/2, o.y-o.h/2, o.x+o.w/2, o.y+o.h/2);
+      grad.addColorStop(0, lighten(col, 0.22));
+      grad.addColorStop(1, col);
+      ctx.fillStyle = grad;
+      rr(o.x-o.w/2, o.y-o.h/2, o.w, o.h, 10);
+      ctx.fill();
+
+      // inner gloss
+      ctx.fillStyle = 'rgba(255,255,255,0.32)';
+      rr(o.x-o.w/2+4, o.y-o.h/2+4, o.w-8, (o.h-8)*0.45, 6);
+      ctx.fill();
+
+      // border
+      ctx.strokeStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},0.4)`;
       ctx.lineWidth = 1.5;
+      rr(o.x-o.w/2, o.y-o.h/2, o.w, o.h, 10);
       ctx.stroke();
     }
-    ctx.globalAlpha = o.phased ? 0.2 : 1;
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 10px "Courier New", monospace';
+
+    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    ctx.globalAlpha = o.phased ? o.phasedAlpha * 0.4 : 1;
+    ctx.fillStyle = o.phased ? col + '77' : '#fff';
+    ctx.font = `bold 10px "Courier New", monospace`;
     ctx.textAlign = 'center';
     ctx.fillText(CNAMES[o.color], o.x, o.y + 4);
   }
@@ -362,19 +420,39 @@ function draw() {
   // Player
   if (g.phase === 'play') {
     const col = COLS[g.pColor];
-    // outer aura (pulse on color change)
-    const auraR = PR + 14 + (g.colorAnim > 0 ? g.colorAnim * 1.2 : 0);
-    ctx.fillStyle = col + '20';
+    const rgb = hexToRgb(col);
+
+    // aura
+    const auraR = PR + 16 + (g.colorAnim > 0 ? g.colorAnim * 1.4 : 0);
+    const auraGrad = ctx.createRadialGradient(g.pX, PY, 0, g.pX, PY, auraR);
+    auraGrad.addColorStop(0, `rgba(${rgb.r},${rgb.g},${rgb.b},0.22)`);
+    auraGrad.addColorStop(1, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
+    ctx.fillStyle = auraGrad;
     ctx.beginPath(); ctx.arc(g.pX, PY, auraR, 0, Math.PI*2); ctx.fill();
-    // inner glow
-    ctx.fillStyle = col + '40';
-    ctx.beginPath(); ctx.arc(g.pX, PY, PR + 6, 0, Math.PI*2); ctx.fill();
-    // player circle
-    ctx.fillStyle = col;
+
+    // player shadow
+    ctx.shadowColor = `rgba(${rgb.r},${rgb.g},${rgb.b},0.45)`;
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 4;
+
+    // player body
+    const pGrad = ctx.createRadialGradient(g.pX - 5, PY - 5, 2, g.pX, PY, PR);
+    pGrad.addColorStop(0, lighten(col, 0.3));
+    pGrad.addColorStop(1, col);
+    ctx.fillStyle = pGrad;
     ctx.beginPath(); ctx.arc(g.pX, PY, PR, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+
+    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+    // white ring
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
     ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.arc(g.pX, PY, PR, 0, Math.PI*2); ctx.stroke();
+
+    // gloss highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.beginPath(); ctx.ellipse(g.pX - 4, PY - 5, 7, 5, -0.4, 0, Math.PI*2); ctx.fill();
+
     // label
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 9px "Courier New", monospace';
@@ -382,99 +460,173 @@ function draw() {
     ctx.fillText(CNAMES[g.pColor], g.pX, PY + 3.5);
   }
 
-  // HUD bottom bar
+  // ── HUD ──
   if (g.phase === 'play' || g.phase === 'dead') {
     // lives
     for (let i = 0; i < 3; i++) {
-      ctx.fillStyle = i < g.lives ? '#E24B4A' : '#333355';
-      ctx.beginPath(); ctx.arc(18 + i*22, IH - 18, 7, 0, Math.PI*2); ctx.fill();
       if (i < g.lives) {
-        ctx.fillStyle = 'rgba(255,100,100,0.4)';
-        ctx.beginPath(); ctx.arc(18 + i*22, IH - 18, 10, 0, Math.PI*2); ctx.fill();
+        ctx.shadowColor = '#d93535';
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = '#d93535';
+      } else {
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = 'rgba(200,200,220,0.55)';
       }
+      ctx.beginPath(); ctx.arc(18 + i*24, IH - 18, 7, 0, Math.PI*2); ctx.fill();
+      ctx.shadowBlur = 0;
     }
-    // score
-    ctx.fillStyle = '#e0e0ff';
-    ctx.font = 'bold 15px "Courier New", monospace';
+
+    // score pill
+    const scoreStr = Math.floor(g.score / 10).toString();
+    ctx.fillStyle = 'rgba(255,255,255,0.82)';
+    const sw = ctx.measureText(scoreStr).width + 20;
+    rr(IW - sw - 8, IH - 30, sw + 4, 22, 11);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(120,120,200,0.18)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = '#1e2060';
+    ctx.font = 'bold 14px "Courier New", monospace';
     ctx.textAlign = 'right';
-    ctx.fillText(Math.floor(g.score / 10), IW - 12, IH - 12);
-    // speed
-    ctx.fillStyle = '#555588';
-    ctx.font = '9px "Courier New", monospace';
+    ctx.fillText(scoreStr, IW - 14, IH - 13);
+
+    // speed tag
+    ctx.fillStyle = 'rgba(120,120,180,0.55)';
+    ctx.font = '8px "Courier New", monospace';
     ctx.textAlign = 'right';
     ctx.fillText('SPD ' + g.spd.toFixed(1), IW - 12, 16);
   }
 
   // ── START screen ──
   if (g.phase === 'start') {
-    ctx.fillStyle = 'rgba(14,14,28,0.94)';
+    ctx.fillStyle = 'rgba(245,245,255,0.93)';
     ctx.fillRect(0, 0, IW, IH);
     ctx.textAlign = 'center';
 
-    ctx.fillStyle = '#378ADD';
-    ctx.font = 'bold 28px "Courier New", monospace';
-    ctx.fillText('WAVELENGTH', IW/2, IH/2 - 120);
+    // Title
+    ctx.save();
+    ctx.shadowColor = 'rgba(30,125,204,0.35)';
+    ctx.shadowBlur = 24;
+    ctx.fillStyle = '#1e7dcc';
+    ctx.font = 'bold 30px "Courier New", monospace';
+    ctx.fillText('WAVELENGTH', IW/2, IH/2 - 118);
+    ctx.restore();
 
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    // Subtitle line
+    ctx.fillStyle = 'rgba(30,125,204,0.22)';
+    ctx.fillRect(IW/2-80, IH/2-108, 160, 1.5);
+
+    ctx.fillStyle = 'rgba(40,40,100,0.5)';
     ctx.font = '10px "Courier New", monospace';
     ctx.fillText('блоки падают сверху', IW/2, IH/2 - 90);
-    ctx.fillText('совпади по цвету — пройди насквозь', IW/2, IH/2 - 72);
-    ctx.fillText('не тот цвет — теряешь жизнь', IW/2, IH/2 - 54);
+    ctx.fillText('совпади по цвету — пройди насквозь', IW/2, IH/2 - 73);
+    ctx.fillText('не тот цвет — теряешь жизнь', IW/2, IH/2 - 56);
 
-    // color demo
-    [['#E24B4A','RED'],['#4aaa5a','GRN'],['#378ADD','BLU']].forEach(([c,l],i) => {
-      const x = IW/2 - 64 + i*64;
-      ctx.fillStyle = c + '33';
-      ctx.beginPath(); ctx.arc(x, IH/2+8, 20, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = c;
-      ctx.beginPath(); ctx.arc(x, IH/2+8, 16, 0, Math.PI*2); ctx.fill();
+    // Color demo balls
+    [['#d93535','RED'],['#2da84a','GRN'],['#1e7dcc','BLU']].forEach(([c,l],i) => {
+      const x = IW/2 - 62 + i*62;
+      const rgb = hexToRgb(c);
+      ctx.shadowColor = c;
+      ctx.shadowBlur = 14;
+
+      const g2 = ctx.createRadialGradient(x-4, IH/2+2, 2, x, IH/2+8, 18);
+      g2.addColorStop(0, lighten(c, 0.28));
+      g2.addColorStop(1, c);
+      ctx.fillStyle = g2;
+      ctx.beginPath(); ctx.arc(x, IH/2+8, 18, 0, Math.PI*2); ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.beginPath(); ctx.ellipse(x-4, IH/2+2, 6, 4, -0.3, 0, Math.PI*2); ctx.fill();
+
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 9px "Courier New", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(l, x, IH/2+12);
     });
 
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fillStyle = 'rgba(80,80,160,0.4)';
     ctx.font = '10px "Courier New", monospace';
-    ctx.fillText('◀ ▶  дорожка   |   ◈  цвет', IW/2, IH/2 + 60);
+    ctx.fillText('◀ ▶  дорожка   |   ◈  цвет', IW/2, IH/2 + 56);
 
-    // play button
-    ctx.fillStyle = '#378ADD';
-    rr(IW/2-70, IH/2+90, 140, 46, 12);
+    // Play button
+    ctx.save();
+    ctx.shadowColor = 'rgba(30,125,204,0.4)';
+    ctx.shadowBlur = 20;
+    const bGrad = ctx.createLinearGradient(IW/2-70, IH/2+90, IW/2+70, IH/2+136);
+    bGrad.addColorStop(0, '#4499e0');
+    bGrad.addColorStop(1, '#1e7dcc');
+    ctx.fillStyle = bGrad;
+    rr(IW/2-70, IH/2+88, 140, 46, 14);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(100,180,255,0.6)';
+    ctx.restore();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    rr(IW/2-66, IH/2+90, 132, 22, 10);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
     ctx.lineWidth = 1.5;
+    rr(IW/2-70, IH/2+88, 140, 46, 14);
     ctx.stroke();
+
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 15px "Courier New", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('▶  ИГРАТЬ', IW/2, IH/2 + 119);
+    ctx.fillText('▶  ИГРАТЬ', IW/2, IH/2 + 117);
   }
 
   // ── DEAD screen ──
   if (g.phase === 'dead') {
-    ctx.fillStyle = 'rgba(14,14,28,0.91)';
+    ctx.fillStyle = 'rgba(245,245,255,0.92)';
     ctx.fillRect(0, 0, IW, IH);
     ctx.textAlign = 'center';
 
-    ctx.fillStyle = '#E24B4A';
+    ctx.save();
+    ctx.shadowColor = 'rgba(217,53,53,0.3)';
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = '#d93535';
     ctx.font = 'bold 20px "Courier New", monospace';
-    ctx.fillText('СИГНАЛ ПОТЕРЯН', IW/2, IH/2 - 70);
+    ctx.fillText('СИГНАЛ ПОТЕРЯН', IW/2, IH/2 - 68);
+    ctx.restore();
 
-    ctx.fillStyle = '#e0e0ff';
-    ctx.font = 'bold 22px "Courier New", monospace';
-    ctx.fillText('СЧЁТ  ' + Math.floor(g.score/10), IW/2, IH/2 - 28);
-
-    ctx.fillStyle = '#556688';
-    ctx.font = '13px "Courier New", monospace';
-    ctx.fillText('ЛУЧШИЙ  ' + Math.floor(g.hiScore/10), IW/2, IH/2 + 2);
-
-    ctx.fillStyle = '#378ADD';
-    rr(IW/2-70, IH/2+44, 140, 46, 12);
+    ctx.fillStyle = 'rgba(30,32,96,0.12)';
+    ctx.fillRect(IW/2-90, IH/2-52, 180, 58);
+    rr(IW/2-90, IH/2-52, 180, 58, 12);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(100,180,255,0.5)';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(120,120,200,0.18)';
+    ctx.lineWidth = 1;
     ctx.stroke();
+
+    ctx.fillStyle = '#1a2060';
+    ctx.font = 'bold 22px "Courier New", monospace';
+    ctx.fillText('СЧЁТ  ' + Math.floor(g.score/10), IW/2, IH/2 - 22);
+
+    ctx.fillStyle = 'rgba(80,80,160,0.5)';
+    ctx.font = '13px "Courier New", monospace';
+    ctx.fillText('ЛУЧШИЙ  ' + Math.floor(g.hiScore/10), IW/2, IH/2 + 6);
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(30,125,204,0.35)';
+    ctx.shadowBlur = 16;
+    const bGrad2 = ctx.createLinearGradient(IW/2-70, IH/2+44, IW/2+70, IH/2+90);
+    bGrad2.addColorStop(0, '#4499e0');
+    bGrad2.addColorStop(1, '#1e7dcc');
+    ctx.fillStyle = bGrad2;
+    rr(IW/2-70, IH/2+44, 140, 46, 14);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    rr(IW/2-66, IH/2+46, 132, 22, 10);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.lineWidth = 1.5;
+    rr(IW/2-70, IH/2+44, 140, 46, 14);
+    ctx.stroke();
+
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 15px "Courier New", monospace';
     ctx.textAlign = 'center';
@@ -484,7 +636,15 @@ function draw() {
   ctx.textAlign = 'left';
 }
 
-// ─── Loop ─────────────────────────────────────────────────────────────
+// lighten a hex color by t (0-1)
+function lighten(hex, t) {
+  const {r,g,b} = hexToRgb(hex);
+  const lr = Math.round(r + (255-r)*t);
+  const lg = Math.round(g + (255-g)*t);
+  const lb = Math.round(b + (255-b)*t);
+  return `rgb(${lr},${lg},${lb})`;
+}
+
 function loop() { update(); draw(); requestAnimationFrame(loop); }
 loop();
 
